@@ -36,7 +36,7 @@ function [ output ] = benchmark_func(input, properties)
                 output = 10*d + sum(input.^2 - 10*cos(2*pi*input));
             end
         otherwise
-            if properties.dimensions == 2
+            if d == 2
                 x = input(1:end/2,:);
                 y = input(end/2+1:end,:);
                 output = (a - x).^2 + b*(y - x.^2).^2;

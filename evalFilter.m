@@ -32,8 +32,8 @@ function E2 = evalFilter( filter, args )
     end
     
     if strcmpi(type, 'IIR')
-        b = filter(1:end/2);        %num
-        a = filter(end/2 + 1:end);   %den
+        b = filter(1:end/2,:);        %num
+        a = filter(end/2 + 1:end,:);   %den
         [h, w] = freqz(b,a, sampleSize);
     elseif strcmpi(type, 'FIR')
         b = filter;
@@ -56,12 +56,8 @@ function E2 = evalFilter( filter, args )
         hold off;
         legend('D(\omega)','H(\omega)','E(\omega)');
         title('Frequency Response');
-        xlabel('Frequency (rad/s)');
-        ylabel('Amplitude');
-        
-        %ax = gca;
-        %ax.XTickLabel = {'0', '\pi/2','\pi', '3\pi/2', '2\pi', '5\pi/2', '3\pi', '7\pi/2'};
-        %set(ax,'XTickLabel',{'0', '\pi/2','\pi', '3\pi/2', '2\pi', '5\pi/2', '3\pi', '7\pi/2'})
+        xlabel('Frequency (\times\pirad/s)');
+        ylabel('Gain');
     end
     
     E2 = sqrt((1/(2*pi))*sum(e.^2));

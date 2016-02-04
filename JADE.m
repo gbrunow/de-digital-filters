@@ -132,14 +132,15 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func, func_args)
             end
             [error, index] = min(score);
             best = pop(:,index);
-            evalFilter(best, {@lowpass, 'iir', [0.5], 2048, true});
+            printEnabled = func_args{5};
+            func_args{5} = true;
+            evalFilter(best, func_args);
+            func_args{5} = printEnabled;
             drawnow;
-            clc;
+            clc;            
             toc
             disp(['Error ' num2str(error, 10) ' at generation ' num2str(G)]);
-            
         end
-
     end
 
     toc

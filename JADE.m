@@ -1,12 +1,22 @@
-function [ output_args ] = JADE(D, NP, n, minB, maxB, func)
-    % JADE(D, NP, n, minB, maxB, func)
+function [ output_args ] = JADE(D, NP, n, minB, maxB, func, func_args)
+    % JADE(D, NP, n, minB, maxB, func, func_args*)
     %
-    % D:        dimensions number
-    % NP:       population size
-    % minB:     minumum boundary
-    % maxB:     maximum boundary
-    % n:        maximum number of generations
-    % func:     function to be minimized
+    % D:            dimensions number
+    % NP:           population size
+    % n:            maximum number of generations
+    % minB:         minumum boundary
+    % maxB:         maximum boundary
+    % func:         function to be minimized
+    % func_args:    any extra arguments that 'func' may need
+    % *:            optional arguments
+    
+    if nargin < 6 || nargin > 7
+        disp('Usage: JADE(D, NP, n, minB, maxB, func, func_args*)');
+        disp('       *optional arguments');
+        return;
+    elseif nargin ~= 7
+        func_args = {};
+    end
     
     G = 0;                  %generation
     F = ones(D,NP);         %scale factor/mutation factor ("mutation" weight)
@@ -26,9 +36,12 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func)
     top = round(NP*(1-P));
 
     pop = (maxB - minB) .* rand(D, NP) + minB;
+  
+    score = ones(1,NP);    
+    for j=1:NP
+        score(j) = func(pop(:,j), func_args);
+    end
 
-    score = func(pop);
-    acc_diff = zeros(D,NP);
     pop_std = ones(D,1);
 
 
@@ -55,12 +68,13 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func)
         %--------------------------------------------------%
 
         old_score = score;
-        score = func(pop);
+        for j=1:NP
+            score(j) = func(pop(:,j), func_args);
+        end
         [sortedValues,sortIndex] = sort(score(:),'descend');
         p_best = pop(:,sortIndex(1:top));
         best = p_best(:,randi(top));
-
-    %     SCR = [SCR CR(sum(CR_cross) > 0)];                 
+              
         mCR = (1-C) * mCR + C * mean(SCR);
         CR = mean(mCR) + 0.1 * randn(1,NP);
 
@@ -74,9 +88,7 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func)
         pop(pop>maxB) = maxB;
         pop(pop<minB) = minB;
 
-
         pop_diff = abs(pop_old - pop);
-        acc_diff = acc_diff + pop_diff;
 
         %------- population diversification -------%
         threshold = alpha*d*((n-G)/G)^zeta;
@@ -100,7 +112,9 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func)
         %------------------------------------------%
 
         old_score = score;
-        score = func(pop);
+        for j=1:NP
+            score(j) = func(pop(:,j), func_args);
+        end
         pop(:,score > old_score) = pop_old(:,score > old_score);
 
         SCR = [SCR CR(score > old_score)];
@@ -110,13 +124,30 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func)
         mf = (1 - C) * mF + C * meanL;
 
         pop_std = std(pop,1,2);   
+        
+        if(mod(G,10) == 1)
+            
+            for j=1:NP
+                score(j) = func(pop(:,j), func_args);
+            end
+            [error, index] = min(score);
+            best = pop(:,index);
+            evalFilter(best, {@lowpass, 'iir', [0.5], 2048, true});
+            drawnow;
+            clc;
+            toc
+            disp(['Error ' num2str(error, 10) ' at generation ' num2str(G)]);
+            
+        end
 
     end
 
     toc
     disp(['Finished after ' num2str(G) ' generations.']);
     
-    score = func(pop);
+    for j=1:NP
+        score(j) = func(pop(:,j), func_args);
+    end
     [val index] = min(score);
     output_args = pop(:,index);
 

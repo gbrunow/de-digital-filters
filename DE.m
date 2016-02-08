@@ -1,110 +1,105 @@
-% clear all;
-close all;
-% clc;
+function [ output_args ] = DE(D, NP, n, F, CR, minB, maxB, func, func_args)
+    % DE(D, NP, n, minB, maxB, func, func_args*)
+    %
+    % D:            dimensions number
+    % NP:           population size
+    % n:            maximum number of generations
+    % minB:         minumum boundary
+    % maxB:         maximum boundary
+    % func:         function to be minimized
+    % func_args:    any extra arguments that 'func' may need
+    % *:            optional arguments
 
-NP = 25;                %population size
-F = 0.85;               %scale factor ("mutation" weight)
-CR = 0.25;              %crossover propability
-D = 2;                  %dimensions
-G = 0;                  %generation
-min_bound = -2;
-max_bound = 2;
-max_iterations = 2500;
+    G = 0;                  %generation
 
-n = max_iterations;
-d = 0.1;
-alpha = 0.06;
-zeta = 1;
+    d = 0.1;
+    alpha = 0.06;
+    zeta = 1;
 
-functions = { 'rosenbrock', 'rastrigin' };
-properties.function = functions{1};
-properties.dimensions = D;
-properties.fill = true;
-properties.plot = false;
-properties.levels = 20;
+    pop = (maxB - minB) .* rand(D, NP) + minB;
 
-D = properties.dimensions;
+    tic;
+    
+    progress_bar = '[                    ]';
+    progress = 1;
+    disp([progress_bar(1:end/2) '0.00%' progress_bar(end/2+1:end)]);
 
-pop = (max_bound - min_bound) .* rand(D, NP) + min_bound;
-plot_pop(pop, max_bound, properties);
+    pop_std = ones(D,1);
+    
+    score = inf * ones(NP,1);
 
-tic
+    while G < n && ~isempty(pop_std(pop_std > 0))
+        G = G + 1;
+        pop_old = pop;
 
-acc_diff = zeros(D,NP);
-
-pop_std = ones(D,1);
-
-while G < max_iterations && ~isempty(pop_std(pop_std > 0))
-    G = G + 1;
-    pop_old = pop;
-    
-    [a, b, c] = randPop(NP,D);
-    
-    pop_a = pop(:,a);
-    pop_b = pop(:,b);
-    pop_c = pop(:,c);
-    
-    %-------- determine wether to cross or not --------%
-    randJ = randi(D, [D NP]);       %random dimension matrix
-    cross = zeros(size(randJ));
-    for j = 1:D
-        cross(j,:) = randJ(j,:) == j;
-    end
-    
-    cross = rand([D NP]) < CR | cross;
-    %--------------------------------------------------%
-    
-    pop = pop_a + F * (pop_b - pop_c) .* cross;
-    pop(pop>max_bound) = max_bound;
-    pop(pop<min_bound) = min_bound;
-    
-    
-    pop_diff = abs(pop_old - pop);
-    acc_diff = acc_diff + pop_diff;
-    
-    %------- population diversification -------%
-    threshold = alpha*d*((n-G)/G)^zeta;
-    
-    less_than_threshold = pop_diff < threshold;
-    skip_vector = sum(less_than_threshold) > 0;
-    if ~isempty(pop(less_than_threshold))
-        
-        [a, b, c] = randPop(NP,D,skip_vector);
+        [a, b, c] = randPop(NP,D);
 
         pop_a = pop(:,a);
         pop_b = pop(:,b);
         pop_c = pop(:,c);
+
+        %-------- determine wether to cross or not --------%
+        randJ = randi(D, [D NP]);       %random dimension matrix
+        cross = zeros(size(randJ));
+        for j = 1:D
+            cross(j,:) = randJ(j,:) == j;
+        end
+
+        cross = rand([D NP]) < CR | cross;
+        %--------------------------------------------------%
+
+        pop = pop_a + F * (pop_b - pop_c) .* cross;
+        pop(pop>maxB) = maxB;
+        pop(pop<minB) = minB;
+
+        pop_diff = abs(pop_old - pop);
+
+        %------- population diversification -------%
+        threshold = alpha*d*((n-G)/G)^zeta;
+
+        less_than_threshold = pop_diff < threshold;
+        skip_vector = sum(less_than_threshold) > 0;
         
-        pop(less_than_threshold) = pop_a(less_than_threshold) + F * (pop_b(less_than_threshold) - pop_c(less_than_threshold)) .* cross(less_than_threshold);
+        if ~isempty(pop(less_than_threshold))
+
+            [a, b, c] = randPop(NP,D,skip_vector);
+
+            pop_a = pop(:,a);
+            pop_b = pop(:,b);
+            pop_c = pop(:,c);
+
+            pop(less_than_threshold) = pop_a(less_than_threshold) + F * (pop_b(less_than_threshold) - pop_c(less_than_threshold)) .* cross(less_than_threshold);
+
+        end
+        %------------------------------------------%
+
+        old_score = score;
+        score = func(pop, func_args);
+        pop(:,score > old_score) = pop_old(:,score > old_score);
+
+        pop_std = std(pop,1,2);
         
+        percentage = G/n*100;
+        if(mod(percentage,5) == 0)
+            progress = progress + 1;
+            progress_bar(progress) = '=';
+            progress_bar(progress+1) = '>';
+            tempArgs = func_args;
+            tempArgs{end+1} = true;
+            info = func(pop, tempArgs);
+            out = plotBestFilter(info);
+            drawnow;
+            clc;
+            disp([progress_bar(1:end/2) sprintf('%1.2f',percentage) '%' progress_bar(end/2+1:end)]);
+            toc;
+            disp(['Error ' num2str(out(1), 10) ' at generation ' num2str(G) '.']);
+        end
     end
-    %------------------------------------------%
-    
-    score = benchmark_func(pop, properties);
-    old_score = benchmark_func(pop_old, properties);
-    pop(:,score > old_score) = pop_old(:,score > old_score);
-    
-    pop_std = std(pop,1,2);
 
-%   ----------- Progression Plot ----------- 
-    if(max(acc_diff(:)) >= 0.05 && D == 2)
-        pop_diff = zeros(D,NP);
-        plot_pop(pop, max_bound, properties);
-%         clc;
-%         threshold
-    end    
-%   ----------------------------------------    
-
+    toc;
+    
+    score = func(pop, func_args);
+    [error, index] = min(score);
+    output_args = pop(:,index);
+    
 end
-
-toc
-
-plot_pop(pop, max_bound, properties);
-score = benchmark_func(pop, properties);
-[val index] = min(score);
-G
-result = pop(:,index)
-hold on;
-plot([min_bound result(1,1)], [result(2,1) result(2,1)], 'k--');
-plot([result(1,1) result(1,1)], [min_bound result(2,1)], 'k--');
-plot(result(1,1), result(2,1), 'mo', 'LineWidth', 3);

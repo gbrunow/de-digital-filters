@@ -27,6 +27,7 @@ function [ output_args ] = evalFilters( filters, args )
     for i=1:size(filters,2)
         e = abs(d - h(i,:));
         errors(i) = mean(e.^2);
+%         errors(i) = sqrt((1/(2*pi)) * sum(e.^2) / size(e,2));
     end
 
     if size(args, 2) > 3

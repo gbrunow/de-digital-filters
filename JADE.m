@@ -44,8 +44,7 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func, func_args)
     
     progress_bar = '[                    ]';
     progress = 1;
-    disp(progress_bar);
-    disp('0%');
+    disp([progress_bar(1:end/2) '0.00%' progress_bar(end/2+1:end)]);
 
     tic
 
@@ -137,11 +136,10 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func, func_args)
             info = func(pop, tempArgs);
             out = plotBestFilter(info);
             drawnow;
-            clc;            
-            toc
+            clc;
+            disp([progress_bar(1:end/2) sprintf('%1.2f',percentage) '%' progress_bar(end/2+1:end)]);
+            toc;
             disp(['Error ' num2str(out(1), 10) ' at generation ' num2str(G) '.']);
-            disp(progress_bar);
-            disp([sprintf('%1.2f',percentage) '%']);
         end
     end
     

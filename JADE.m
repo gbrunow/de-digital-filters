@@ -36,14 +36,16 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func, func_args)
     top = round(NP*(1-P));
 
     pop = (maxB - minB) .* rand(D, NP) + minB;
-  
-    score = ones(1,NP);    
-    for j=1:NP
-        score(j) = func(pop(:,j), func_args);
-    end
+   
+    
+    score = func(pop, func_args);
 
     pop_std = ones(D,1);
-
+    
+    progress_bar = '[                    ]';
+    progress = 1;
+    disp(progress_bar);
+    disp('0%');
 
     tic
 
@@ -68,9 +70,9 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func, func_args)
         %--------------------------------------------------%
 
         old_score = score;
-        for j=1:NP
-            score(j) = func(pop(:,j), func_args);
-        end
+            
+        score = func(pop, func_args);
+            
         [sortedValues,sortIndex] = sort(score(:),'descend');
         p_best = pop(:,sortIndex(1:top));
         best = p_best(:,randi(top));
@@ -112,9 +114,9 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func, func_args)
         %------------------------------------------%
 
         old_score = score;
-        for j=1:NP
-            score(j) = func(pop(:,j), func_args);
-        end
+        
+        score = func(pop, func_args);
+            
         pop(:,score > old_score) = pop_old(:,score > old_score);
 
         SCR = [SCR CR(score > old_score)];
@@ -125,31 +127,30 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func, func_args)
 
         pop_std = std(pop,1,2);   
         
-        if(mod(G,10) == 1)
-            
-            for j=1:NP
-                score(j) = func(pop(:,j), func_args);
-            end
-            [error, index] = min(score);
-            best = pop(:,index);
-            printEnabled = func_args{5};
-            func_args{5} = true;
-            evalFilter(best, func_args);
-            func_args{5} = printEnabled;
+        percentage = G/n*100;
+        if(mod(percentage,5) == 0)
+            progress = progress + 1;
+            progress_bar(progress) = '=';
+            progress_bar(progress+1) = '>';
+            tempArgs = func_args;
+            tempArgs{end+1} = true;
+            info = func(pop, tempArgs);
+            out = plotBestFilter(info);
             drawnow;
             clc;            
             toc
-            disp(['Error ' num2str(error, 10) ' at generation ' num2str(G)]);
+            disp(['Error ' num2str(out(1), 10) ' at generation ' num2str(G) '.']);
+            disp(progress_bar);
+            disp([sprintf('%1.2f',percentage) '%']);
         end
     end
-
-    toc
-    disp(['Finished after ' num2str(G) ' generations.']);
     
-    for j=1:NP
-        score(j) = func(pop(:,j), func_args);
-    end
-    [val index] = min(score);
+    score = func(pop, func_args);
+    
+    [error, index] = min(score);
+%     disp(['Finished after ' num2str(G) ' generations.']);
+%     disp(['Error ' num2str(error, 10) '.']);
+    
     output_args = pop(:,index);
 
 end

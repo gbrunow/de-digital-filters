@@ -1,9 +1,11 @@
 function [ output_args ] = DE(D, NP, n, F, CR, minB, maxB, func, func_args)
-    % DE(D, NP, n, minB, maxB, func, func_args*)
+    % DE(D, NP, n, F, CR, minB, maxB, func, func_args*)
     %
     % D:            dimensions number
     % NP:           population size
     % n:            maximum number of generations
+    % F:            scale factor
+    % CR:           crossover probability
     % minB:         minumum boundary
     % maxB:         maximum boundary
     % func:         function to be minimized
@@ -24,6 +26,7 @@ function [ output_args ] = DE(D, NP, n, F, CR, minB, maxB, func, func_args)
     progress = 1;
     disp([progress_bar(1:end/2) '0.00%' progress_bar(end/2+1:end)]);
 
+    % --- randomly initialize population --- %
     pop_std = ones(D,1);
     
     score = inf * ones(NP,1);
@@ -32,7 +35,7 @@ function [ output_args ] = DE(D, NP, n, F, CR, minB, maxB, func, func_args)
         G = G + 1;
         pop_old = pop;
 
-        [a, b, c] = randPop(NP,D);
+        [a, b, c] = randPop(NP);
 
         pop_a = pop(:,a);
         pop_b = pop(:,b);
@@ -62,7 +65,7 @@ function [ output_args ] = DE(D, NP, n, F, CR, minB, maxB, func, func_args)
         
         if ~isempty(pop(less_than_threshold))
 
-            [a, b, c] = randPop(NP,D,skip_vector);
+            [a, b, c] = randPop(NP,skip_vector);
 
             pop_a = pop(:,a);
             pop_b = pop(:,b);

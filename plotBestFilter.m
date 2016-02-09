@@ -21,6 +21,7 @@ function [ output_args ] = plotBestFilter( args )
     title('Frequency Response');
     xlabel('Frequency (\times\pirad/samples)');
     ylabel('Gain');
+    xlim([min(w) max(w)]);
     
     output_args = [error, index];
 end

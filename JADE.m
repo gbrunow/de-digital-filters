@@ -35,8 +35,8 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func, func_args)
 
     top = round(NP*(1-P));
 
+    % --- randomly initialize population --- %
     pop = (maxB - minB) .* rand(D, NP) + minB;
-   
     
     score = func(pop, func_args);
 
@@ -52,7 +52,7 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func, func_args)
         G = G + 1;
         pop_old = pop;
 
-        [a, b, c] = randPop(NP,D);
+        [a, b, c] = randPop(NP);
 
         pop_a = pop(:,a);
         pop_b = pop(:,b);
@@ -98,7 +98,7 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func, func_args)
         skip_vector = sum(less_than_threshold) > 0;
         if ~isempty(pop(less_than_threshold))
 
-            [a, b, c] = randPop(NP,D,skip_vector);
+            [a, b, c] = randPop(NP,skip_vector);
 
             pop_a = pop(:,a);
             pop_b = pop(:,b);

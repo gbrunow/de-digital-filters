@@ -1,5 +1,6 @@
 filtersEvaluator <- function(filterFunction, cutoff, type = "IIR", samples = 512){
-  #source('filters.R')
+  library('Metrics')
+  library('signal')
   
   w <- seq(0, pi, pi/(samples-1))
   dw <- filterFunction(w, cutoff)
@@ -11,14 +12,14 @@ filtersEvaluator <- function(filterFunction, cutoff, type = "IIR", samples = 512
         filters = matrix(filters, nrow = 1)
       }
       
-      end <- dim(filters)[2]
+      end <- dim(filters)[1]
       half <-  end/2
-      size <- dim(filters)[1]
+      size <- dim(filters)[2]
       ews <-  vector(mode = "numeric", length = size)
       
       for(i in 1:size){
-        b <- filters[i, 1:half]
-        a <- filters[i, (half+1):end]
+        b <- filters[1:half, i]
+        a <- filters[(half+1):end, i]
         hw <-  freqz(b,a, n = samples)
         ews[i] <- mse(dw,abs(hw$h))
       }
@@ -31,13 +32,13 @@ filtersEvaluator <- function(filterFunction, cutoff, type = "IIR", samples = 512
       filters = matrix(filters, nrow = 1)
     }
     
-    end <- dim(filters)[2]
+    end <- dim(filters)[1]
     half <-  end/2
-    size <- dim(filters)[1]
+    size <- dim(filters)[2]
     ews <-  vector(mode = "numeric", length = size)
     
     for(i in 1:size){
-      hw <-  freqz(filters[i,1:end], n = samples)
+      hw <-  freqz(filters[1:end,1], n = samples)
       ews[i] <- mse(dw,hw$h)
     }
      

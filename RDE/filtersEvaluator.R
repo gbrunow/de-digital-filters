@@ -4,6 +4,7 @@ filtersEvaluator <- function(filterFunction, cutoff, type = "IIR", samples = 512
   
   w <- seq(0, pi, pi/(samples-1))
   dw <- filterFunction(w, cutoff)
+  # z <- exp(-1i*w);
   
   if(type == "IIR"){
     
@@ -21,6 +22,7 @@ filtersEvaluator <- function(filterFunction, cutoff, type = "IIR", samples = 512
         b <- filters[1:half, i]
         a <- filters[(half+1):end, i]
         hw <-  freqz(b,a, n = samples)
+        # h <- polyval(b, z)/polyval(a, z)
         ews[i] <- mse(dw,abs(hw$h))
       }
       ews

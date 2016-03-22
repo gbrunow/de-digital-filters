@@ -2,8 +2,7 @@ filterGenerator <- function (filterFunction, cutoff, order = 5, type = "IIR", me
   source('filtersEvaluator.R')
   source('filters.R')
   source('JADE.R')
-  
-  eval <- filtersEvaluator(filterFunction, cutoff, type, samples = 128)
+  source("fast_freqz.R")
   
   D <- (order + 1)*2
   f <- function(pop, score){
@@ -11,8 +10,12 @@ filterGenerator <- function (filterFunction, cutoff, order = 5, type = "IIR", me
     b <- best[1:(D/2)]
     a <- best[((D/2)+1):D]
     r <- freqz(b,a)
-    freqz_plot(r$f, r$h)
+    #freqz_plot(r$f, r$h)
+    plot(r$f,abs(r$h))
   }
+  
+  eval <- filtersEvaluator(filterFunction, cutoff, type, samples = 128)
+  
   filter <- JADE(D, eval, 150, feedback = f)
   
   

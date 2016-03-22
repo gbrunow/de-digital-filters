@@ -21,6 +21,8 @@ JADE <- function(D, eval, NP = D*10, n = 1500, minB = -100, maxB = 100, maxASize
   # alpha <- 0.06
   # zeta <- 1
   # 
+  
+  diversify <- diversifier(n, D)
   p <- 0.9
   # mCR <- matrix(1,1,NP) * 0.5        #µCR
   # mF <- matrix(1,1,NP) * 0.5         #µF
@@ -72,6 +74,8 @@ JADE <- function(D, eval, NP = D*10, n = 1500, minB = -100, maxB = 100, maxASize
     a <- A[!is.na(A)]
     pop <- pop + (((pop - best) + mutator(pop, a)) %*% diag(f)) * cross 
     
+    pop <- diversify(pop, popOld, g)
+    
     pop[pop < minB] <- minB
     pop[pop > maxB] <- maxB
     
@@ -81,6 +85,7 @@ JADE <- function(D, eval, NP = D*10, n = 1500, minB = -100, maxB = 100, maxASize
 
     #-------- restore individuals who got worse from previous generation  --------#
     pop[1:D, !improved] <- popOld[1:D, !improved]
+    
     #-------- save good solution to the archive --------#
     improvements <- pop[1:D, improved]
 
@@ -94,7 +99,7 @@ JADE <- function(D, eval, NP = D*10, n = 1500, minB = -100, maxB = 100, maxASize
     
     popStd <- apply(pop, 2, sd)
     
-    if(!is.null(feedback) && g %% 25 == 1) {
+    if(!is.null(feedback) && g %% (n/100) == 0) {
       feedback(pop,score)
       print(g) 
     }

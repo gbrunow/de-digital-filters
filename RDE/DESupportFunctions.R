@@ -3,9 +3,9 @@ mutator <- function(pop, A = NULL, archiveSize = 0, cross = rep(TRUE, NP)){
     print("The parameter 'pop' has to be a matrix")
   } else {
   
-    if(!is.null(A) && is.matrix(A)){
-      archiveSize <- dim(A)[2]
-    }
+    # if(!is.null(A) && is.matrix(A)){
+    #   archiveSize <- dim(A)[2]
+    # }
     D <- dim(pop)[1]
     NP <- dim(pop)[2]
     PA <- NP + archiveSize

@@ -5,6 +5,7 @@ JADE <- function(D, eval, NP = D*10, n = 1500, minB = -100, maxB = 100, maxASize
   mf <- 0.5
   A <- matrix(NA, D, maxASize)         #archive of solutions that improved compared to the previous generation
   archive <- archiver(A, maxASize)
+  archiveSize = 0;
   
   # --- randomly initialize population --- #
   pop <- matrix(runif(NP*D, minB, maxB), D, NP)
@@ -72,7 +73,7 @@ JADE <- function(D, eval, NP = D*10, n = 1500, minB = -100, maxB = 100, maxASize
     
     #-------- actual crossisng --------#
     a <- A[!is.na(A)]
-    pop <- pop + (((pop - best) + mutator(pop, a)) %*% diag(f)) * cross 
+    pop <- pop + (((pop - best) + mutator(pop, a, archiveSize)) %*% diag(f)) * cross 
     
     pop <- diversify(pop, popOld, g)
     
@@ -90,6 +91,11 @@ JADE <- function(D, eval, NP = D*10, n = 1500, minB = -100, maxB = 100, maxASize
     improvements <- pop[1:D, improved]
 
     A <- archive(improvements)
+    archiveSize <- archiveSize + length(improved)
+    if(archiveSize > maxASize){
+      archiveSize <- maxASize
+    }
+      
     
     sf <- f[improved]
     scr <- cr[improved]

@@ -3,10 +3,11 @@ classdef DigitalFilter < handle
         samples = 512;
         w = linspace(0,pi,512);
         z = exp(-1j*linspace(0,pi,512));
+        func = @(w) w;
     end
     
     properties
-        gain = db2mag(1);
+        gain = 1;
         type = 'IIR';
         cutoff
         order
@@ -14,6 +15,7 @@ classdef DigitalFilter < handle
         b
         a
         solver
+        plotSamples = 2048;
     end
     
     methods
@@ -24,28 +26,32 @@ classdef DigitalFilter < handle
                 obj.w = w;
             end 
         end
+        
         function obj = bandpass(obj)
-            obj.dw = zeros(size(obj.w));
-            obj.dw(obj.w >= obj.cutoff(1)) = obj.gain;
-            obj.dw(obj.w > obj.cutoff(2)) = 0;
+            obj.func = @(w) (w >= obj.cutoff(1) & w <= obj.cutoff(2)) * obj.gain;
+            obj.dw = obj.func(obj.w);
         end
+        
         function obj = bandstop(obj)
-            obj.dw = zeros(size(obj.w));
-            obj.dw(obj.w < obj.cutoff(1)) = obj.gain;
-            obj.dw(obj.w > obj.cutoff(2)) = obj.gain;
+            obj.func = @(w) (w <= obj.cutoff(1) & w >= obj.cutoff(2)) *obj.gain;
+            obj.dw = obj.func(obj.w);
         end
+        
         function obj = highpass(obj)
-            obj.dw = zeros(size(obj.w));
-            obj.dw(obj.w >= obj.cutoff) = obj.gain;
+            obj.func = @(w) (w >= obj.cutoff) * obj.gain;
+            obj.dw = obj.func(obj.w);
         end
+        
         function obj = lowpass(obj)
-            obj.dw = zeros(size(obj.w));
-            obj.dw(obj.w < obj.cutoff) = obj.gain;
+            obj.func = @(w) (w <= obj.cutoff) * obj.gain;
+            obj.dw = obj.func(obj.w);
         end
+        
         function plot(obj)
-            hmag = mag2db(obj.dw);
-            hmag(hmag < 0) = 0;
-            plot(obj.w, hmag);
+            tempSamples = obj.samples;
+            obj.setSamples(obj.plotSamples);
+            hold off;
+            plot(obj.w, obj.dw);
             xlabel('Frequency (rad/samples)');
             ylabel('Gain (db)');
             ax = gca;
@@ -60,9 +66,12 @@ classdef DigitalFilter < handle
                 end
                 hold on;
                 plot(wa,abs(ha));
+                hold off;
                 legend('D(\omega)', 'H(\omega)');
             end
+            obj.setSamples(tempSamples);
         end 
+        
         function eval = getEval(obj)
             if strcmp(obj.type, 'IIR')
                 eval = @(c) evalIIR(obj, c);
@@ -70,40 +79,19 @@ classdef DigitalFilter < handle
                 eval = @(c) evalFIR(obj, c);
             end 
         end
-%         function mse = evalIIR(obj, candidates)
-%             half = obj.order + 1;
-%             Bs = candidates(1:half,:);
-%             As = candidates((half+1):end,:);
-%             hw = zeros(size(Bs, 2), size(obj.w, 2));
-%             for i=1:size(Bs,2)
-%                 hw(i,:) = polyval(Bs(:,i), obj.z)./polyval(As(:,i), obj.z);
-%             end
-%             mse = obj.evalResponse(hw);
-%         end
-%         function mse = evalFIR(obj, candidates)
-%             Bs = candidates;
-%             hw = zeros(size(Bs, 2), size(obj.w, 2));
-%             for i=1:size(Bs,2)
-%                 hw(i,:) = polyval(Bs(:,i), obj.z);
-%             end
-%             mse = obj.evalResponse(hw);
-%         end
-%         function mse = evalResponse(obj, hw)
-%             mse = zeros(1,size(hw,1));
-%             for i=1:size(hw,1)
-%                 ew = abs(obj.dw - hw(i,:));
-%                 mse(i) = mean(ew.^2);
-%             end
-%         end
+        
         function obj = setW(obj, w)
             obj.w = w;
             obj.samples = length(w);
             obj.z = exp(-1j*obj.w);
+            obj.dw = obj.func(obj.w);
         end        
+        
         function obj = setSamples(obj, samples)
             obj.samples = samples;
             obj.w = linspace(0, pi, samples);
             obj.z = exp(-1j*obj.w);
+            obj.dw = obj.func(obj.w);
         end
     end    
 end

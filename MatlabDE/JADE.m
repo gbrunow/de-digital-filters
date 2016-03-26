@@ -21,16 +21,16 @@ function best = JADE(D, NP, n, minB, maxB, maxASize, eval, feedback)
     
     score = eval(pop);
     
-    popStd = std(pop,1,2);
+    popStd = ones(1,NP);
     
     %f = ones(D,NP);              %scale factor/mutation factor ("mutation" weight)
     %cr = ones(1,NP)*0.25;        %crossover propability
     g = 0 ;                      %generation
     
-    alpha = 0.006;
+    alpha = 0.06;
     d = 0.1;
     zeta = 1;
-    diversify = @(pop, popOld, g) diversifier( pop, popOld, g, n, D, alpha, d, zeta);
+    diversify = @(mutation, g) diversifier(mutation, g, n, D, alpha, d, zeta);
     
     p = 0.9;                     %determine the percentage (1-p) of top candidates
     top = round(NP*(1-p));       %number of top candidates
@@ -64,28 +64,28 @@ function best = JADE(D, NP, n, minB, maxB, maxASize, eval, feedback)
         cross = zeros(D, NP);
         CRCross = rand(D, NP);
         for i=1:D
-          cross(i,1:NP) = randi(D, 1, NP) == D;
+          cross(i,1:NP) = randi(D, 1, NP) == i;
           CRCross(i,1:NP) = CRCross(i,1:NP) < cr;
         end
         cross = cross | CRCross;
         %--------------------------------------------------%
 
-        popOld = pop;
         oldScore = score;
-        [x, mutation] = mutator(pop, A, archiveSize);
-        mutation = ((pop(1:D,x) - best) + mutation) .* cross;
-        pop = pop(1:D,x) + bsxfun(@times,f,mutation);
+        popOld = pop;
         
-        pop = diversify(pop, popOld, g);
+        [x, mutation] = mutator(g, pop, A, archiveSize, diversify);
+        mutation = (best - pop(1:D,x) + mutation) .* cross;
+        pop = pop(1:D,x) + bsxfun(@times,f,mutation);
         
         pop(pop > maxB) = maxB;
         pop(pop < minB) = minB;
         
         score = eval(pop);
         improved = score < oldScore;
+        worse = score > oldScore;
         
         % -------- restore individuals who got worse from previous generation  -------- %
-        pop(:, ~improved) = pop(:, ~improved);
+        pop(:, worse) = popOld(:, worse);
 
         %-------- save good solution to the archive --------%
         improvements = pop(1:D, improved);

@@ -1,48 +1,56 @@
-function [x, mutation] = mutator( pop, A, archiveSize )
+function [x, mutation] = mutator( g, pop, A, archiveSize, diversifier )
     [D, NP] = size(pop);
-    PA = NP + archiveSize;
-    
-    crossing = zeros(3,NP);
-    crossing(1,:) = randi(PA,1,NP);
-    
-    repeated = crossing(1,:) == 1:NP;
-    while(~isempty(repeated(repeated == true)))
-        newCrossing = randi(PA,1,NP);
-        crossing(1,repeated) = newCrossing(repeated);
-        repeated = crossing(1,:) == 1:NP;
+    if nargin > 2
+        PA = NP + archiveSize;
+    else
+        PA = NP;
     end
     
-    crossing(2,:) = randi(PA,1,NP);
-    repeated = crossing(2,:) == 1:NP;
-    repeated = repeated | crossing(2,:) == crossing(1,:);
+    a = randi(PA,1,NP);
+    
+    repeated = a == 1:NP;
     while(~isempty(repeated(repeated == true)))
         newCrossing = randi(PA,1,NP);
-        crossing(2,repeated) = newCrossing(repeated);
-        repeated = crossing(2,:) == 1:NP;
-        repeated = repeated | crossing(2,:) == crossing(1,:);
+        a(repeated) = newCrossing(repeated);
+        repeated = a == 1:NP;
     end
     
-    crossing(3,:) = randi(NP,1,NP);
-    repeated = crossing(3,:) == 1:NP;
-    repeated = repeated | crossing(3,:) == crossing(1,:);
-    repeated = repeated | crossing(3,:) == crossing(2,:);
+    b = randi(PA,1,NP);
+    repeated = b == 1:NP;
+    repeated = repeated | b == a;
+    while(~isempty(repeated(repeated == true)))
+        newCrossing = randi(PA,1,NP);
+        b(repeated) = newCrossing(repeated);
+        repeated = b == 1:NP;
+        repeated = repeated | b == a;
+    end
+    
+    c = randi(NP,1,NP);
+    repeated = c == 1:NP;
+    repeated = repeated | c == a;
+    repeated = repeated | c == b;
     while(~isempty(repeated(repeated == true)))
         newCrossing = randi(NP,1,NP);
-        crossing(3,repeated) = newCrossing(repeated);
-        repeated = crossing(3,:) == 1:NP;
-        repeated = repeated | crossing(3,:) == crossing(1,:);
-        repeated = repeated | crossing(3,:) == crossing(2,:);
+        c(repeated) = newCrossing(repeated);
+        repeated = c == 1:NP;
+        repeated = repeated | c == a;
+        repeated = repeated | c == b;
     end
     
-    if(archiveSize > 0)
+    if(nargin > 2 && archiveSize > 0)
        union = [pop A]; 
     else
         union = pop;
     end
     
-    popA = union(:,crossing(1,:));
-    popB = union(:,crossing(2,:));
+    popA = union(:,a);
+    popB = union(:,b);
     mutation = popA - popB;
-    x = crossing(3,:);
+    
+    if nargin > 4
+        mutation(diversifier(mutation,g)) = 0;
+    end
+    
+    x = c;
 end
 

@@ -20,9 +20,9 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func, func_args)
         func_args = {};
     end
     
-    mCR = 0.5;     %µCR
-    mF = 0.5;      %µF
-    C = 0.35;
+    mcr = 0.5;     %µCR
+    mf = 0.5;      %µF
+    c_m = 0.35;
     
     maxASize = NP;
     A = zeros(D, maxASize);
@@ -36,36 +36,36 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func, func_args)
     zeta = 1;
     diversify = @(mutation, g) diversifier(mutation, g, n, D, alpha, d, zeta);
     
-    P = 0.9;
-    top = round(NP*(1-P));
+    p = 0.9;
+    top = round(NP*(1-p));
 
     % --- randomly initialize population --- %
     pop = (maxB - minB) .* rand(D, NP) + minB;
     
     score = func(pop, func_args);
 
-    pop_std = ones(D,1);
+    popStd = ones(D,1);
     
-    progress_bar = '[                    ]';
+    progressBar = '[                    ]';
     progress = 1;
-    disp([progress_bar(1:end/2) '0.00%' progress_bar(end/2+1:end)]);
+    disp([progressBar(1:end/2) '0.00%' progressBar(end/2+1:end)]);
     
     %Lehmer mean
     meanl = @(x) sum(x.^2)/sum(x);
 
     tic
 
-    while g < n && ~isempty(pop_std(pop_std > 0))
+    while g < n && ~isempty(popStd(popStd > 0))
         g = g + 1;
         
         [~, scoreOrdering] = sort(score(:),'ascend');
         pBest = scoreOrdering(1:top);
         best = pop(1:D, pBest(randi(top, [1 NP])));
         
-        CR = mCR + 0.1 * randn(1,NP);
+        cr = mcr + 0.1 * randn(1,NP);
         
         % --- set up cauchy distrubuition -- %
-        pd = makedist('tLocationScale','mu',mCR,'sigma',0.1,'nu',1);
+        pd = makedist('tLocationScale','mu',mcr,'sigma',0.1,'nu',1);
         f = random(pd,1,NP);
         negatives = f < 0;
         while(~isempty(negatives(negatives == true)))
@@ -80,29 +80,16 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func, func_args)
         CRCross = rand(D, NP);
         for i=1:D
           cross(i,1:NP) = randi(D, 1, NP) == i;
-          CRCross(i,1:NP) = CRCross(i,1:NP) < CR;
+          CRCross(i,1:NP) = CRCross(i,1:NP) < cr;
         end
         cross = cross | CRCross;
         %--------------------------------------------------%
 
         oldScore = score;
         popOld = pop;
-        
-%         [a, b, c] = randPop(NP);
-% 
-%         pop_a = pop(:,a);
-%         pop_b = pop(:,b);
-%         pop_c = pop(:,c);
-%         
-%         mutation = (pop_b - pop_c);
-%         restore = diversify(mutation,g);
-%         
-%         %mutation = ((best - pop_a) + mutation) .* cross;    %literature
-%         mutation = (best - pop_a) + mutation .* cross;      %better results
-%         mutation = bsxfun(@times,mutation,f);
-%         pop = pop_a + mutation;
 
-    [x, mutation, restore] = mutator(g, pop, diversify, A, archiveSize);
+
+        [x, mutation, restore] = mutator(g, pop, diversify, A, archiveSize);
         %mutation = ((best - pop(1:D,x)) + mutation) .* cross;   %literature
         mutation = (best - pop(1:D,x)) + mutation .* cross;     %better results
         pop = pop(1:D,x) + bsxfun(@times,f,mutation);
@@ -126,8 +113,8 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func, func_args)
         [ A, archiveSize ] = archive(A, archiveSize, improvements);
         %----------------------------------------------------%
         
-        SCR = CR(improved);
-        SF = CR(improved);
+        SCR = cr(improved);
+        SF = cr(improved);
         
         mean_scr = 0;
         if ~isempty(SCR)
@@ -138,23 +125,23 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func, func_args)
             mean_sf = meanl(SF);
         end
 
-        mCR = (1-C) * mCR + C * mean_scr;
-        mF = (1 - C) * mF + C * mean_sf;
+        mcr = (1-c_m) * mcr + c_m * mean_scr;
+        mf = (1 - c_m) * mf + c_m * mean_sf;
 
-        pop_std = std(pop,1,2);   
+        popStd = std(pop,1,2);   
         
         percentage = g/n*100;
         if(mod(percentage,5) == 0)
             progress = progress + 1;
-            progress_bar(progress) = '=';
-            progress_bar(progress+1) = '>';
+            progressBar(progress) = '=';
+            progressBar(progress+1) = '>';
             tempArgs = func_args;
             tempArgs{end+1} = true;
             info = func(pop, tempArgs);
             out = plotBestFilter(info);
             drawnow;
             clc;
-            disp([progress_bar(1:end/2) sprintf('%1.2f',percentage) '%' progress_bar(end/2+1:end)]);
+            disp([progressBar(1:end/2) sprintf('%1.2f',percentage) '%' progressBar(end/2+1:end)]);
              toc;
             disp(['Error ' num2str(out(1), 10) ' at generation ' num2str(g) '.']);
         end

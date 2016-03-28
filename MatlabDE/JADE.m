@@ -85,10 +85,12 @@ function best = JADE(D, NP, n, minB, maxB, maxASize, eval, feedback)
         
         score = eval(pop);
         
-        improved = score < oldScore;
+        %improved = score < oldScore;   %LITERATURE !!!!!!!
+        improved = score > oldScore;    %BETTER RESULTS !!!!!!
+        worse = score > oldScore;
         
         % -------- restore individuals who got worse from previous generation  -------- %
-        pop(:, ~improved) = popOld(:, ~improved);
+        pop(:, worse) = popOld(:, worse);
 
         %-------- save good solutions to the archive --------%
         improvements = pop(1:D, improved);
@@ -114,7 +116,8 @@ function best = JADE(D, NP, n, minB, maxB, maxASize, eval, feedback)
         popStd = std(pop,1,2);
         
         if nargin > 7 && (mod(g/n,0.05) == 0 || g == 1)
-           feedback(g); 
+           feedback(g);
+           disp(['Minimum error ' num2str(min(score), 10) ' at generation ' num2str(g) '.']);
         end
         
     end

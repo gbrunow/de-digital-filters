@@ -73,29 +73,28 @@ function best = JADE(D, NP, n, minB, maxB, maxASize, eval, feedback)
         oldScore = score;
         popOld = pop;
         
-        [x, mutation] = mutator(g, pop, A, archiveSize, diversify);
-        mutation = (best - pop(1:D,x) + mutation) .* cross;
+        [x, mutation, restore] = mutator(g, pop, diversify, A, archiveSize);
+        %mutation = ((best - pop(1:D,x)) + mutation) .* cross;   %literature
+        mutation = (best - pop(1:D,x)) + mutation .* cross;     %better results
         pop = pop(1:D,x) + bsxfun(@times,f,mutation);
         
         pop(pop > maxB) = maxB;
         pop(pop < minB) = minB;
         
+        pop(restore) = popOld(restore);
+        
         score = eval(pop);
+        
         improved = score < oldScore;
-        worse = score > oldScore;
         
         % -------- restore individuals who got worse from previous generation  -------- %
-        pop(:, worse) = popOld(:, worse);
+        pop(:, ~improved) = popOld(:, ~improved);
 
-        %-------- save good solution to the archive --------%
+        %-------- save good solutions to the archive --------%
         improvements = pop(1:D, improved);
 
-        A = archive(A, archiveSize, improvements);
-        archiveSize = archiveSize + length(improved);
-        
-        if archiveSize > maxASize
-            archiveSize = maxASize;
-        end
+        [ A, archiveSize ] = archive(A, archiveSize, improvements);
+        %----------------------------------------------------%
 
         scr = cr(improved);
         sf = f(improved);
@@ -108,16 +107,16 @@ function best = JADE(D, NP, n, minB, maxB, maxASize, eval, feedback)
         if ~isempty(sf)
             mean_sf = meanl(sf);
         end
-        
-        
 
         mcr =  (1 - c_m) * mcr + c_m * mean_scr;
         mf = (1 - c_m) * mf + c_m * mean_sf;
 
         popStd = std(pop,1,2);
         
-        clc
-        g
+        if nargin > 7 && (mod(g/n,0.05) == 0 || g == 1)
+           feedback(g); 
+        end
+        
     end
     
     score = eval(pop);

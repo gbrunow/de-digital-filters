@@ -1,6 +1,6 @@
-function [x, mutation] = mutator( g, pop, A, archiveSize, diversifier )
+function [x, mutation, restore] = mutator( g, pop, diversifier, A, archiveSize )
     [D, NP] = size(pop);
-    if nargin > 2
+    if nargin > 4
         PA = NP + archiveSize;
     else
         PA = NP;
@@ -37,7 +37,7 @@ function [x, mutation] = mutator( g, pop, A, archiveSize, diversifier )
         repeated = repeated | c == b;
     end
     
-    if(nargin > 2 && archiveSize > 0)
+    if(nargin > 4 && archiveSize > 0)
        union = [pop A]; 
     else
         union = pop;
@@ -47,8 +47,8 @@ function [x, mutation] = mutator( g, pop, A, archiveSize, diversifier )
     popB = union(:,b);
     mutation = popA - popB;
     
-    if nargin > 4
-        mutation(diversifier(mutation,g)) = 0;
+    if nargin > 2
+        restore = diversifier(mutation,g);
     end
     
     x = c;

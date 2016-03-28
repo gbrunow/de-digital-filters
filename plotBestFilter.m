@@ -19,8 +19,11 @@ function [ output_args ] = plotBestFilter( args )
     hold off;
     legend('D(\omega)','H(\omega)','E(\omega)');
     title('Frequency Response');
-    xlabel('Frequency (\times\pirad/samples)');
+    xlabel('Frequency (rad/samples)');
     ylabel('Gain');
+    ax = gca;
+    set(ax,'XTick',[0 0.25*pi 0.5*pi 0.75*pi pi])
+    set(ax,'XTickLabel',{'0','\pi/4','\pi/2','3\pi/4','\pi'})
     xlim([min(w) max(w)]);
     
     output_args = [error, index];

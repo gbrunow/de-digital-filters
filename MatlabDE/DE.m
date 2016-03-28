@@ -19,6 +19,11 @@ function best = DE(D, NP, n, minB, maxB, eval, feedback)
     
     popStd = ones(1,NP);
     
+    alpha = 0.06;
+    d = 0.1;
+    zeta = 1;
+    diversify = @(mutation, g) diversifier(mutation, g, n, D, alpha, d, zeta);
+    
     f = 0.85;              %scale factor/mutation factor ("mutation" weight)
     cr = 0.25;        %crossover propability
     g = 0 ;                      %generation
@@ -39,7 +44,8 @@ function best = DE(D, NP, n, minB, maxB, eval, feedback)
         oldScore = score;
         popOld = pop;
         
-        [x, mutation] = mutator(g, pop);
+%         [x, mutation] = mutator(g, pop);
+        [x, mutation] = mutator(g, pop, diversify);
         mutation = f * mutation .* cross;
         
         pop = pop(1:D,x) + mutation;

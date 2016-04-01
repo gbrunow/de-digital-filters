@@ -22,7 +22,7 @@ function [ a, b, c ] = randPop( NP, skip )
             c_equals_a_or_b = c == b | c == a;
         end
         
-        % fast but no as eficient
+        % fast but not as eficient
 % function [ pops ] = randPop( NP, n )
 
 %     if n > factorial(NP)

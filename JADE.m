@@ -10,6 +10,8 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func, func_args)
     % func_args:    any extra arguments that 'func' may need
     % *:            optional arguments
     
+    addpath('MatlabDE');
+    
     if nargin < 6 || nargin > 7
         disp('Usage: JADE(D, NP, n, minB, maxB, func, func_args*)');
         disp('       *optional arguments');
@@ -18,135 +20,137 @@ function [ output_args ] = JADE(D, NP, n, minB, maxB, func, func_args)
         func_args = {};
     end
     
-    G = 0;                  %generation
-    F = ones(D,NP);         %scale factor/mutation factor ("mutation" weight)
-    CR = ones(1,NP)*0.25;   %crossover propability
+    mcr = 0.5;     %µCR
+    mf = 0.5;      %µF
+    c_m = 0.35;
+    
+    maxASize = NP;
+    A = zeros(D, maxASize);
+    archive = @(A, archiveSize, improvements) archiver(A, D, maxASize, archiveSize, improvements);
+    archiveSize = 0;
+    
+    g = 0;                  %generation
     
     d = 0.1;
     alpha = 0.06;
     zeta = 1;
-
-    P = 0.9;
-    mCR = ones(1,NP) * 0.5;     %µCR
-    mF = ones(1,NP) * 0.5;      %µF
-    C = 0.35;
-    SCR = [];                   %List of successfull probabilities CR
-    SF = [];                    %List of successfull scale factors F
-
-    top = round(NP*(1-P));
+    diversify = @(mutation, g) diversifier(mutation, g, n, D, alpha, d, zeta);
+    
+    p = 0.9;
+    top = round(NP*(1-p));
 
     % --- randomly initialize population --- %
     pop = (maxB - minB) .* rand(D, NP) + minB;
     
     score = func(pop, func_args);
 
-    pop_std = ones(D,1);
+    popStd = ones(D,1);
     
-    progress_bar = '[                    ]';
+    progressBar = '[                    ]';
     progress = 1;
-    disp([progress_bar(1:end/2) '0.00%' progress_bar(end/2+1:end)]);
+    disp([progressBar(1:end/2) '0.00%' progressBar(end/2+1:end)]);
+    
+    %Lehmer mean
+    meanl = @(x) sum(x.^2)/sum(x);
 
     tic
 
-    while G < n && ~isempty(pop_std(pop_std > 0))
-        G = G + 1;
-        pop_old = pop;
-
-        [a, b, c] = randPop(NP);
-
-        pop_a = pop(:,a);
-        pop_b = pop(:,b);
-        pop_c = pop(:,c);
-
-        %-------- determine wether to cross or not --------%
-        randJ = randi(D, [D NP]);       %random dimension matrix
-        cross = zeros(size(randJ));
-        for j = 1:D
-            cross(j,:) = randJ(j,:) == j;
+    while g < n && ~isempty(popStd(popStd > 0))
+        g = g + 1;
+        
+        [~, scoreOrdering] = sort(score(:),'ascend');
+        pBest = scoreOrdering(1:top);
+        best = pop(1:D, pBest(randi(top, [1 NP])));
+        
+        cr = mcr + 0.1 * randn(1,NP);
+        
+        % --- set up cauchy distrubuition -- %
+        pd = makedist('tLocationScale','mu',mcr,'sigma',0.1,'nu',1);
+        f = random(pd,1,NP);
+        negatives = f < 0;
+        while(~isempty(negatives(negatives == true)))
+          newF = random(pd,1,NP);
+          f(negatives) = newF(negatives);
+          negatives = f < 0;
         end
-        CR_cross = bsxfun(@lt, rand([D NP]), CR);
-        cross =  CR_cross | cross;
+        f(f > 1) = 1;
+        
+        %-------- determine wether to cross or not --------%
+        cross = zeros(D, NP);
+        CRCross = rand(D, NP);
+        for i=1:D
+          cross(i,1:NP) = randi(D, 1, NP) == i;
+          CRCross(i,1:NP) = CRCross(i,1:NP) < cr;
+        end
+        cross = cross | CRCross;
         %--------------------------------------------------%
 
-        old_score = score;
-            
-        score = func(pop, func_args);
-            
-        [sortedValues,sortIndex] = sort(score(:),'descend');
-        p_best = pop(:,sortIndex(1:top));
-        best = p_best(:,randi(top));
-              
-        mCR = (1-C) * mCR + C * mean(SCR);
-        CR = mean(mCR) + 0.1 * randn(1,NP);
+        oldScore = score;
+        popOld = pop;
 
-        Fi = mF + 0.1 * randn(1,NP); % !!! This is standard distribuited but should be Cauchy !!!
-        Fi(Fi > 1) = 1;
-        third = randi(NP,[1 floor(NP/3)]);
-        Fi(third) = 1.2*rand(1,floor(NP/3));
-        F = bsxfun(@times,Fi,F);
 
-        pop = pop_a + bsxfun(@minus,best,pop) + (pop_b - pop_c) .* F .* cross;
+        [x, mutation, restore] = mutator(g, pop, diversify, A, archiveSize);
+        %mutation = ((best - pop(1:D,x)) + mutation) .* cross;   %literature
+        mutation = (best - pop(1:D,x)) + mutation .* cross;     %better results
+        pop = pop(1:D,x) + bsxfun(@times,f,mutation);
+        
         pop(pop>maxB) = maxB;
         pop(pop<minB) = minB;
-
-        pop_diff = abs(pop_old - pop);
-
-        %------- population diversification -------%
-        threshold = alpha*d*((n-G)/G)^zeta;
-
-        less_than_threshold = pop_diff < threshold;
-        skip_vector = sum(less_than_threshold) > 0;
-        if ~isempty(pop(less_than_threshold))
-
-            [a, b, c] = randPop(NP,skip_vector);
-
-            pop_a = pop(:,a);
-            pop_b = pop(:,b);
-            pop_c = pop(:,c);
-
-            mutation = pop_b(less_than_threshold) - pop_c(less_than_threshold);
-            mutation = mutation .* F(less_than_threshold);
-
-            pop(less_than_threshold) = pop_a(less_than_threshold) + mutation .* cross(less_than_threshold);
-
-        end
-        %------------------------------------------%
-
-        old_score = score;
+        
+        pop(restore) = popOld(restore);
         
         score = func(pop, func_args);
-            
-        pop(:,score > old_score) = pop_old(:,score > old_score);
 
-        SCR = [SCR CR(score > old_score)];
-        SF = [SF CR(score > old_score)];
-
-        meanL = sum(Fi.^2)/sum(Fi);
-        mf = (1 - C) * mF + C * meanL;
-
-        pop_std = std(pop,1,2);   
+        improved = score > oldScore;
+        worse = score > oldScore;
         
-        percentage = G/n*100;
+        % -------- restore individuals who got worse from previous generation  -------- %
+        pop(:,worse) = popOld(:,worse);
+        
+        %-------- save good solutions to the archive --------%
+        improvements = pop(1:D, improved);
+
+        [ A, archiveSize ] = archive(A, archiveSize, improvements);
+        %----------------------------------------------------%
+        
+        SCR = cr(improved);
+        SF = cr(improved);
+        
+        mean_scr = 0;
+        if ~isempty(SCR)
+            mean_scr = mean(SCR);
+        end
+        mean_sf = 0;
+        if ~isempty(SF)
+            mean_sf = meanl(SF);
+        end
+
+        mcr = (1-c_m) * mcr + c_m * mean_scr;
+        mf = (1 - c_m) * mf + c_m * mean_sf;
+
+        popStd = std(pop,1,2);   
+        
+        percentage = g/n*100;
         if(mod(percentage,5) == 0)
             progress = progress + 1;
-            progress_bar(progress) = '=';
-            progress_bar(progress+1) = '>';
+            progressBar(progress) = '=';
+            progressBar(progress+1) = '>';
             tempArgs = func_args;
             tempArgs{end+1} = true;
             info = func(pop, tempArgs);
             out = plotBestFilter(info);
             drawnow;
             clc;
-            disp([progress_bar(1:end/2) sprintf('%1.2f',percentage) '%' progress_bar(end/2+1:end)]);
-            toc;
-            disp(['Error ' num2str(out(1), 10) ' at generation ' num2str(G) '.']);
+            disp([progressBar(1:end/2) sprintf('%1.2f',percentage) '%' progressBar(end/2+1:end)]);
+             toc;
+            disp(['Error ' num2str(out(1), 10) ' at generation ' num2str(g) '.']);
         end
     end
     
     score = func(pop, func_args);
     
     [error, index] = min(score);
-%     disp(['Finished after ' num2str(G) ' generations.']);
+%     disp(['Finished after ' num2str(g) ' generations.']);
 %     disp(['Error ' num2str(error, 10) '.']);
     
     output_args = pop(:,index);

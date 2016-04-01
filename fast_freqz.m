@@ -22,13 +22,13 @@ function [ h, w ] = fast_freqz( filters, args )
     if strcmpi(type, 'IIR')
         b = filters(1:end/2, :);
         a = filters(end/2 + 1 : end, :);
-    
+        h = zeros(size(filters,2), length(w));
         for i=1:size(filters,2)
             h(i,:) = polyval(b(:,i), z)./polyval(a(:,i), z);
         end
     elseif strcmpi(type, 'FIR')
         b = filters(1:end, :);
-    
+        h = zeros(size(filters,2), length(w));
         for i=1:size(filters,2)
             h(i,:) = polyval(b(:,i), z);
         end

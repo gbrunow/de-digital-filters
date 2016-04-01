@@ -46,27 +46,26 @@ function best = DE(D, NP, n, minB, maxB, eval, feedback)
         
 %         [x, mutation] = mutator(g, pop);
         [x, mutation] = mutator(g, pop, diversify);
-        mutation = f * mutation .* cross;
         
-        pop = pop(1:D,x) + mutation;
+        pop = pop(1:D,x) + f * mutation .* cross;
         
         pop(pop > maxB) = maxB;
         pop(pop < minB) = minB;
         
         score = eval(pop);
         
-        %improved = score > oldScore;
         worse = score > oldScore;
         
         % -------- restore individuals who got worse from previous generation  -------- %
-        %pop(:, ~improved) = popOld(:, ~improved);
         pop(:, worse) = popOld(:, worse);
-
+        score(worse) = oldScore(worse);
 
         popStd = std(pop,1,2);
         
-        clc
-        g
+        if nargin > 6 && (mod(g/n,0.05) == 0 || g == 1)
+           feedback(g);
+           disp(['Minimum error ' num2str(min(score), 10) ' at generation ' num2str(g) '.']);
+        end
     end
     
     score = eval(pop);

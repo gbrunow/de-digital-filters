@@ -4,11 +4,13 @@ f.highpass;                     %set filter as a lowpass
 
 eval = f.getEval;
 D = (f.order + 1) * 2;
-n = 1500;
+n = 1000;
+NP = 75;
+maxASize = NP;
 tic
-feedback = @(g) progressBar(30,g,n,true,true);
-best = JADE(12, 75, n, -100, 100, 75, eval, feedback);
-% best = DE(12, 75, 1500, -100, 100, eval, 1);
+feedback = @(g) progressBar(30,g,n,true,false,true,true);
+best = JADE(D, NP, n, -100, 100, maxASize, eval, feedback);
+% best = DE(12, 75, 1500, -100, 100, eval, feedback);
 f.b = best(1:6);
 f.a = best(7:12);
 f.plot

@@ -74,8 +74,7 @@ function best = JADE(D, NP, n, minB, maxB, maxASize, eval, feedback)
         popOld = pop;
         
         [x, mutation, restore] = mutator(g, pop, diversify, A, archiveSize);
-        %mutation = ((best - pop(1:D,x)) + mutation) .* cross;   %literature
-        mutation = (best - pop(1:D,x)) + mutation .* cross;     %better results
+        mutation = ((best - pop(1:D,x)) + mutation) .* cross;
         pop = pop(1:D,x) + bsxfun(@times,f,mutation);
         
         pop(pop > maxB) = maxB;
@@ -85,12 +84,12 @@ function best = JADE(D, NP, n, minB, maxB, maxASize, eval, feedback)
         
         score = eval(pop);
         
-        %improved = score < oldScore;   %LITERATURE !!!!!!!
-        improved = score > oldScore;    %BETTER RESULTS !!!!!!
+        improved = score < oldScore;   %LITERATURE !!!!!!!
         worse = score > oldScore;
         
         % -------- restore individuals who got worse from previous generation  -------- %
         pop(:, worse) = popOld(:, worse);
+        score(worse) = oldScore(worse);
 
         %-------- save good solutions to the archive --------%
         improvements = pop(1:D, improved);

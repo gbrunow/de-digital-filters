@@ -1,21 +1,21 @@
+D = 2;
+n = 2500;
+
 a = 1;
 b = 100;
 rosenbrock = @(pop) (a - pop(1,:)).^2 + b*(pop(2,:) - pop(1,:).^2).^2;
 
 A = 10;
-n = 2;
-rastrigin = @(pop) A*n + sum(pop.^2 - A*cos(2*pi*pop));
+N = 2;
+rastrigin = @(pop) A*N + sum(pop.^2 - A*cos(2*pi*pop));
 
-D = 2;
-n = 2500;
 tic
-feedback = @(g) progressBar(30,g,n,true,true,true);
-
 evaluation = zeros(D,100);
+progress(0,'Please wait...');
 for i = 1:100
-    best = JADE(D, 25, n, -2, 2, 25, rankTest);
+    best = JADE(D, 25, n, -2, 2, 25, rastrigin);
     evaluation(:,i) = best;
-    progressBar(30,i,100,true,true,true);
+    progress(i/100,'Please wait...');
 end
 
 rstd = std(evaluation,1,2)

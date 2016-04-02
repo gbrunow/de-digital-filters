@@ -23,6 +23,9 @@ filtersEvaluator <- function(filterFunction, cutoff, type = "IIR", samples = 512
         a <- filters[(half+1):end, i]
         hw <-  freqz(b,a, n = samples)
         # h <- polyval(b, z)/polyval(a, z)
+        if(anyNA(hw$h)){
+          hw$h[is.nan(hw$h)] <- Inf
+        }
         ews[i] <- mse(dw,abs(hw$h))
       }
       ews

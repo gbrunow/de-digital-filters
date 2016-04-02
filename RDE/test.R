@@ -17,3 +17,11 @@ freqz100 <- function(b,a){
 filter = c(b,a)
 filters = replicate(100, filter)
 #benchmark(freqz100(b,a), fast_freqz(filters))
+
+count <- function(inc = 1, i = 0){
+  j = i;
+  function(){
+    j <<- j + inc
+    j
+  }
+}

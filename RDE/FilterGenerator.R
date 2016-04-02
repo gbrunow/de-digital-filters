@@ -5,7 +5,7 @@ filterGenerator <- function (filterFunction, cutoff, order = 5, type = "IIR", me
   source("fast_freqz.R")
   
   D <- (order + 1)*2
-  f <- function(pop, score){
+  feedback <- function(pop, score){
     best <- pop[1:D, order(score)[1]]
     b <- best[1:(D/2)]
     a <- best[((D/2)+1):D]
@@ -16,7 +16,7 @@ filterGenerator <- function (filterFunction, cutoff, order = 5, type = "IIR", me
   
   eval <- filtersEvaluator(filterFunction, cutoff, type, samples = 128)
   
-  filter <- JADE(D, eval, 150, feedback = f)
+  filter <- JADE(D, eval, NP = 150, maxASize = 150, feedback = feedback)
   
   
   notImplemented <- print("Method not implemented yet.")

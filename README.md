@@ -4,8 +4,12 @@
   * **Pontifical Catholic University of Paraná**
 
 # Implemented Algorithms
+**Matlab:**
 * [Classic DE](https://gitlab.com/gbrunow/de-digital-filters/blob/master/MatlabDE/DE.m)
 * [JADE](https://gitlab.com/gbrunow/de-digital-filters/blob/master/MatlabDE/JADE.m)
+
+**R:**
+* [JADE](https://gitlab.com/gbrunow/de-digital-filters/blob/master/RDE/JADE.R)
 
 # Benchmark Functions
 * [Rosenbrock](https://en.wikipedia.org/wiki/Rosenbrock_function)
@@ -17,3 +21,4 @@
 
 # Help
 * [MatlabDE/test.m](https://gitlab.com/gbrunow/de-digital-filters/blob/master/MatlabDE/test.m) has an example of IIR design using differential evolution.
+* [RDE/test.R](https://gitlab.com/gbrunow/de-digital-filters/blob/master/RDE/test.R) has another example of IIR design.

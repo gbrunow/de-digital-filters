@@ -1,5 +1,6 @@
 JADE <- function(D, eval, NP = 75, n = 1000, minB = -100, maxB = 100, maxASize = NULL){
   source("DESupportFunctions.R")
+  library('tcltk')
 
   if(is.null(maxASize)){
     maxASize = NP
@@ -30,7 +31,8 @@ JADE <- function(D, eval, NP = 75, n = 1000, minB = -100, maxB = 100, maxASize =
   top <- round(NP*(1-p))
   c_m <-  0.35
   
-  pb <-  txtProgressBar(max = n)
+  # create progress bar
+  pb <- tkProgressBar(title = "Please wait...", min = 0, max = n, width = 300)
   
   while(g < n && !is.na(match(TRUE, popStd > 0))){
     g <- g + 1
@@ -111,11 +113,12 @@ JADE <- function(D, eval, NP = 75, n = 1000, minB = -100, maxB = 100, maxASize =
     
     popStd <- apply(pop, 2, sd)
     
-    if((g/n) %% 0.1 == 0) {
-      setTxtProgressBar(pb, g)
+    percentage <- (g/n)
+    if(percentage %% 0.01 == 0) {
+      setTkProgressBar(pb, g, label=paste(round(percentage*100, 0),"% done"))
     }
   }
-  
+  close(pb)
   pop[1:D, order(score)[1]]
   
 }

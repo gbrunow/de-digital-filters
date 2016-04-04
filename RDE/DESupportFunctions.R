@@ -53,25 +53,27 @@ archiver <- function(A, maxASize){
   archiveSize <- 0
   D <- dim(A)[1]
   function(improvements){
-    improvSize <- dim(improvements)[2]
-    if(improvSize > 0){
-      archiveIndex <- (archiveSize+1):(archiveSize + improvSize)
-      inBoundIndex <- archiveIndex[archiveIndex <= maxASize]
-      
-      if(length(inBoundIndex) > 0){
-        A[1:D, inBoundIndex] <<- improvements[1:D, inBoundIndex - archiveSize]
-      }
-      
-      #number of solutions that have to be removed from the current archive to make room for the new ones
-      nremove <- improvSize - (maxASize - archiveSize) 
-      if(nremove > 0){
-        removeIndex <- sample(1:archiveSize, size = nremove)
-        A[1:D, removeIndex] <<- improvements[1:D, archiveIndex[archiveIndex > maxASize] - archiveSize]
-      }
-      
-      archiveSize <<- archiveSize + improvSize
-      if(archiveSize > maxASize){
-        archiveSize <<- maxASize
+    if(!is.null(improvements)){
+      improvSize <- dim(improvements)[2]
+      if(!is.null(improvSize) && improvSize > 0){
+        archiveIndex <- (archiveSize+1):(archiveSize + improvSize)
+        inBoundIndex <- archiveIndex[archiveIndex <= maxASize]
+        
+        if(length(inBoundIndex) > 0){
+          A[1:D, inBoundIndex] <<- improvements[1:D, inBoundIndex - archiveSize]
+        }
+        
+        #number of solutions that have to be removed from the current archive to make room for the new ones
+        nremove <- improvSize - (maxASize - archiveSize) 
+        if(nremove > 0){
+          removeIndex <- sample(1:archiveSize, size = nremove)
+          A[1:D, removeIndex] <<- improvements[1:D, archiveIndex[archiveIndex > maxASize] - archiveSize]
+        }
+        
+        archiveSize <<- archiveSize + improvSize
+        if(archiveSize > maxASize){
+          archiveSize <<- maxASize
+        }
       }
     }
     result <- list(A = A, size = archiveSize)

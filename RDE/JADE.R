@@ -1,4 +1,4 @@
-JADE <- function(D, eval, NP = 75, n = 1000, minB = -100, maxB = 100, maxASize = NULL, feedback = NULL){
+JADE <- function(D, eval, NP = 75, n = 1000, minB = -100, maxB = 100, maxASize = NULL){
   source("DESupportFunctions.R")
 
   if(is.null(maxASize)){
@@ -29,6 +29,8 @@ JADE <- function(D, eval, NP = 75, n = 1000, minB = -100, maxB = 100, maxASize =
   p <- 0.9
   top <- round(NP*(1-p))
   c_m <-  0.35
+  
+  pb <-  txtProgressBar(max = n)
   
   while(g < n && !is.na(match(TRUE, popStd > 0))){
     g <- g + 1
@@ -69,7 +71,6 @@ JADE <- function(D, eval, NP = 75, n = 1000, minB = -100, maxB = 100, maxASize =
     pop[pop < minB] <- minB
     
     restore <- diversify(m$mutation, g)
-    
     pop[restore] <- popOld[restore]
     
     score <- eval(pop)
@@ -110,9 +111,8 @@ JADE <- function(D, eval, NP = 75, n = 1000, minB = -100, maxB = 100, maxASize =
     
     popStd <- apply(pop, 2, sd)
     
-    if(!is.null(feedback) && g %% (n/100) == 0) {
-      feedback(pop,score)
-      print(g) 
+    if((g/n) %% 0.1 == 0) {
+      setTxtProgressBar(pb, g)
     }
   }
   

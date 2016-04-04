@@ -1,27 +1,25 @@
-library(rbenchmark)
-b <-  c(36.62, -72.46, 33.18, 60.22, -87.52, 40.22)
-a <-  c(100, -53.32, 42.75, 92.44, -31.62, 26.28)
+source('filtersEvaluator.R')
+source('filters.R')
+source('JADE.R')
+source("fast_freqz.R")
 
-freqz100 <- function(b,a){
-  for(i in 1:100){
-    freqz(b,a)
-  }
-}
+# feedback <- function(pop, score){
+#   best <- pop[1:D, order(score)[1]]
+#   b <- best[1:(D/2)]
+#   a <- best[((D/2)+1):D]
+#   r <- freqz(b,a)
+#   freqz_plot(r$f, r$h)
+#   #plot(r$f,abs(r$h))
+# }
 
-#response1 <- freqz(b,a)
-#response2 <- fast_freqz(b,a)
+cutoff <- 0.5*pi
+order <- 5
+type <- "IIR"
+D <- (order + 1)*2
 
-#freqz_plot(response1$f, response1$h)
-#freqz_plot(response2$w, response2$h)
-
-filter = c(b,a)
-filters = replicate(100, filter)
-#benchmark(freqz100(b,a), fast_freqz(filters))
-
-count <- function(inc = 1, i = 0){
-  j = i;
-  function(){
-    j <<- j + inc
-    j
-  }
-}
+eval <- filtersEvaluator(highpass, cutoff, type, samples = 512)
+filter <- JADE(D, eval, NP = 150, maxASize = 150)
+b <- filter[1:(D/2)]
+a <- filter[((D/2)+1):D]
+r <- freqz(b,a)
+freqz_plot(r$f, r$h)

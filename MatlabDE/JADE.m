@@ -12,6 +12,8 @@ function best = JADE(D, NP, n, minB, maxB, maxASize, eval, feedback)
     
     mcr = 0.5;
     mf = 0.5;
+    mean_scr = 0.5;
+    mean_sf = 0.5;
     A = zeros(D, maxASize);
     archive = @(A, archiveSize, improvements) archiver(A, D, maxASize, archiveSize, improvements);
     archiveSize = 0;
@@ -48,6 +50,8 @@ function best = JADE(D, NP, n, minB, maxB, maxASize, eval, feedback)
         best = pop(1:D, pBest(randi(top, [1 NP])));
         
         cr = normrnd(mcr, 0.1, [1 NP]);
+        cr(cr > 1) = 1;
+        cr(cr < 0) = 0;
         
         % --- set up cauchy distrubuition -- %
         pd = makedist('tLocationScale','mu',mcr,'sigma',0.1,'nu',1);
@@ -84,27 +88,27 @@ function best = JADE(D, NP, n, minB, maxB, maxASize, eval, feedback)
         
         score = eval(pop);
         
-        improved = score < oldScore;   %LITERATURE !!!!!!!
+        improved = score < oldScore;
         worse = score > oldScore;
         
-        % -------- restore individuals who got worse from previous generation  -------- %
+        %-------- restore individuals who got worse from previous generation  --------%
         pop(:, worse) = popOld(:, worse);
         score(worse) = oldScore(worse);
 
-        %-------- save good solutions to the archive --------%
-        improvements = pop(1:D, improved);
+        %-------- save parent vectors worse than trial vectors to the archive --------%
+        %-------- in orther to maintain diversity                             --------%
+        parentVectors = popOld(1:D, improved);
 
-        [ A, archiveSize ] = archive(A, archiveSize, improvements);
-        %----------------------------------------------------%
+        [ A, archiveSize ] = archive(A, archiveSize, parentVectors);
+        %-----------------------------------------------------------------------------%
 
         scr = cr(improved);
         sf = f(improved);
         
-        mean_scr = 0;
         if ~isempty(scr)
             mean_scr = mean(scr);
         end
-        mean_sf = 0;
+        
         if ~isempty(sf)
             mean_sf = meanl(sf);
         end
@@ -114,7 +118,7 @@ function best = JADE(D, NP, n, minB, maxB, maxASize, eval, feedback)
 
         popStd = std(pop,1,2);
         
-        if nargin > 7 && (mod((g-1)/n,0.05) == 0)
+        if nargin > 7 && (mod((g-1)/n,0.025) == 0)
            feedback((g/n),['Minimum MSE ' num2str(min(score), '%10.5e') ' at generation ' num2str(g) '.']);
         end
     end

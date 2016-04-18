@@ -110,7 +110,9 @@ function best = JADE(D, NP, n, minB, maxB, maxASize, eval, feedback)
         end
         
         if ~isempty(sf)
-            mean_sf = meanl(sf);
+            deltaScore = abs(score(improved) - oldScore(improved));            
+            wk = deltaScore/(sum(scr)*deltaScore);
+            mean_sf = meanlw(sf, wk);
         end
 
         mcr =  (1 - c_m) * mcr + c_m * mean_scr;

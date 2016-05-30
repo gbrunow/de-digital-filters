@@ -40,7 +40,7 @@ function best = JADE(D, NP, n, minB, maxB, maxASize, eval, feedback)
     c_m = 0.35;
     
     %Lehmer mean
-    meanl = @(x) sum(x.^2)/sum(x);
+    %meanl = @(x) sum(x.^2)/sum(x);
     
     while g < n && ~isempty(popStd(popStd > 0))
         g = g + 1;
@@ -53,12 +53,10 @@ function best = JADE(D, NP, n, minB, maxB, maxASize, eval, feedback)
         cr(cr > 1) = 1;
         cr(cr < 0) = 0;
         
-        % --- set up cauchy distrubuition -- %
-        pd = makedist('tLocationScale','mu',mcr,'sigma',0.1,'nu',1);
-        f = random(pd,1,NP);
+        f = normrnd(mf, 0.1, [1 NP]); %should be cauchy distribuited but is normally distribuited
         negatives = f < 0;
         while(~isempty(negatives(negatives == true)))
-          newF = random(pd,1,NP);
+          newF = normrnd(mf, 0.1, [1 NP]);
           f(negatives) = newF(negatives);
           negatives = f < 0;
         end
@@ -97,7 +95,8 @@ function best = JADE(D, NP, n, minB, maxB, maxASize, eval, feedback)
 
         %-------- save parent vectors worse than trial vectors to the archive --------%
         %-------- in orther to maintain diversity                             --------%
-        parentVectors = popOld(1:D, improved);
+%         parentVectors = popOld(1:D, improved);
+        parentVectors = pop(1:D, improved);
 
         [ A, archiveSize ] = archive(A, archiveSize, parentVectors);
         %-----------------------------------------------------------------------------%
@@ -109,7 +108,7 @@ function best = JADE(D, NP, n, minB, maxB, maxASize, eval, feedback)
             mean_scr = mean(scr);
         end
         
-        if ~isempty(sf)
+        if ~isempty(sf) && sum(scr) > 0
             deltaScore = abs(score(improved) - oldScore(improved));            
             wk = deltaScore/(sum(scr)*deltaScore);
             mean_sf = meanlw(sf, wk);

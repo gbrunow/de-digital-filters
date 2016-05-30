@@ -9,8 +9,9 @@ NP = 75;
 maxASize = NP;
 tic
 % feedback = @(g) progressBar(30,g,n,true,false,true,true);
+% best = SHADE(D, NP, n, -100, 100, maxASize, eval, @progress);
 best = JADE(D, NP, n, -100, 100, maxASize, eval, @progress);
-% best = DE(12, 75, 1500, -100, 100, eval, feedback);
+% best = DE(D, NP, n, -100, 100, eval, @progress);
 f.b = best(1:(D/2));
 f.a = best((D/2 +1):end);
 f.plot

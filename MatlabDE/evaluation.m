@@ -13,43 +13,48 @@ A = 10;
 N = D;
 rastrigin = @(pop) A*N + sum(pop.^2 - A*cos(2*pi*pop));
 
-objFun = rastrigin;
+objFun = rosenbrock;
 tic
 
 runs = 100;
 fn = 2;
 
 pmax = fn*runs*n;
-pcurrent = 0;
 results = zeros(fn * D, runs);
 for i = 1:runs
-    globalFeedback = @(g) progressBar(30,pcurrent+g,pmax,true,true,true,false);
-    feedback = @(g) progressBar(30,g,n,false,false,true,true, globalFeedback);
-    best = DE(D, NP, n, minB, maxB, objFun, feedback);
+    best = JADE(D, NP, n, minB, maxB, maxASize, objFun);
     results(1:D,i) = best;
-    pcurrent = pcurrent + n;
+    progress((i-0.5)/runs, 'Please wait...', false);
     
-    globalFeedback = @(g) progressBar(30,pcurrent+g,pmax,true,true,true,false);
-    feedback = @(g) progressBar(30,g,n,false,false,true,true, globalFeedback);
-    best = JADE(D, NP, n, minB, maxB, maxASize, objFun, feedback);
+    best = JADEB(D, NP, n, minB, maxB, maxASize, objFun);
     results((D+1):(2*D),i) = best;
-    pcurrent = pcurrent + n;
+    progress(i/runs, 'Please wait...', false);
 end
 
-rstd = std(results,1,2);
-rmean = mean(results,2);
-[(1:fn*D)' rstd rmean]
-
-rstd = zeros(1,fn);
-rmean = zeros(1,fn);
-a = 1:D:(D*fn);
-b = D:D:(D*fn);
+StandardDeviation = std(results,1,2);
+Mean = mean(results,2);
+rows = cell(1, fn*D);
+k = 1;
 for i = 1:fn
-    rstd(i) = std2(results(a(i):b(i),:));
-    rmean(i) = mean2(results(a(i):b(i),:));
+   for j = 1:D
+       rows{k} = ['Func ' num2str(i) ', Dim ' num2str(j)];
+       k = k + 1;
+   end
 end
+T = table(StandardDeviation, Mean, 'RowNames', rows)
 
-[rstd; rmean]
+% [(1:fn*D)' rstd rmean]
+
+% rstd = zeros(1,fn);
+% rmean = zeros(1,fn);
+% a = 1:D:(D*fn);
+% b = D:D:(D*fn);
+% for i = 1:fn
+%     rstd(i) = std2(results(a(i):b(i),:));
+%     rmean(i) = mean2(results(a(i):b(i),:));
+% end
+
+% [StandardDeviation; Mean]
 
 % figure(1);
 % plot(rstd(1:30), 'b*')

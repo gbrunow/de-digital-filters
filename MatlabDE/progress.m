@@ -1,4 +1,7 @@
-function [ out ] = progress(X, message)
+function [ out ] = progress(X, message, showEndBox)
+    if nargin < 3
+        showEndBox = true;
+    end
     persistent h
     if isempty(h)
         h = waitbar(0,'Please wait...'); 
@@ -8,7 +11,9 @@ function [ out ] = progress(X, message)
             close(h);
             clear h;
         end
-        uiwait(msgbox(message,['Finished in ' num2str(round(toc)) ' seconds.'], 'modal'));
+        if showEndBox
+            uiwait(msgbox(message,['Finished in ' num2str(round(toc)) ' seconds.'], 'modal'));
+        end
     else
         waitbar(X, h, message);     
     end

@@ -7,6 +7,7 @@
 **Matlab:**
 * [Classic DE](https://gitlab.com/gbrunow/de-digital-filters/blob/master/MatlabDE/DE.m)
 * [JADE](https://gitlab.com/gbrunow/de-digital-filters/blob/master/MatlabDE/JADE.m)
+* [SHADE](https://gitlab.com/gbrunow/de-digital-filters/blob/master/MatlabDE/SHADE.m)
 
 **R:**
 * [JADE](https://gitlab.com/gbrunow/de-digital-filters/blob/master/RDE/JADE.R)

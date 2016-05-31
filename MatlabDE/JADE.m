@@ -47,7 +47,7 @@ function best = JADE(D, NP, n, minB, maxB, maxASize, eval, feedback)
         
         [~, scoreOrdering] = sort(score(:),'ascend');
         pBest = scoreOrdering(1:top);
-        best = pop(1:D, pBest(randi(top, [1 NP])));
+        best = pop(:, pBest(randi(top, [1 NP])));
         
         cr = normrnd(mcr, 0.1, [1 NP]);
         cr(cr > 1) = 1;
@@ -104,13 +104,11 @@ function best = JADE(D, NP, n, minB, maxB, maxASize, eval, feedback)
         scr = cr(improved);
         sf = f(improved);
         
-        if ~isempty(scr)
-            mean_scr = mean(scr);
-        end
-        
-        if ~isempty(sf) && sum(scr) > 0
+        if ~isempty(improved) && sum(scr) > 0
             deltaScore = abs(score(improved) - oldScore(improved));            
-            wk = deltaScore/(sum(scr)*deltaScore);
+            wk = deltaScore./sum(deltaScore);
+            
+            mean_scr = meanw(scr, wk);
             mean_sf = meanlw(sf, wk);
         end
 

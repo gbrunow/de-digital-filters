@@ -8,6 +8,7 @@
 * [Classic DE](https://gitlab.com/gbrunow/de-digital-filters/blob/master/MatlabDE/DE.m)
 * [JADE](https://gitlab.com/gbrunow/de-digital-filters/blob/master/MatlabDE/JADE.m)
 * [SHADE](https://gitlab.com/gbrunow/de-digital-filters/blob/master/MatlabDE/SHADE.m)
+* [LSHADE] (https://gitlab.com/gbrunow/de-digital-filters/blob/master/MatlabDE/LSHADE.m)
 
 **R:**
 * [JADE](https://gitlab.com/gbrunow/de-digital-filters/blob/master/RDE/JADE.R)
@@ -17,7 +18,6 @@
 * [Rastrigin](https://en.wikipedia.org/wiki/Rastrigin_function)
 
 # TODO
-* LSHADE
 * Digital filter design wrapper
 
 # Help

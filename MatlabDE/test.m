@@ -6,10 +6,12 @@ eval = f.getEval;
 D = (f.order + 1) * 2;
 n = 1000;
 NP = 75;
+Nmin = 4;
 maxASize = NP;
 tic
 % feedback = @(g) progressBar(30,g,n,true,false,true,true);
-best = SHADE(D, NP, n, -100, 100, maxASize, eval, @progress);
+best = LSHADE(D, NP, Nmin, n, -100, 100, eval, @progress);
+% best = SHADE(D, NP, n, -100, 100, maxASize, eval, @progress);
 % best = JADE(D, NP, n, -100, 100, maxASize, eval, @progress);
 % best = DE(D, NP, n, -100, 100, eval, @progress);
 f.b = best(1:(D/2));

@@ -1,5 +1,5 @@
-function best = LSHADE(D, Ninit, Nmin, n, minB, maxB, eval, feedback)
-%   LSHADE(D, Ninit, Nmin, n, minB, maxB, eval, feedback)
+function best = LJADE(D, Ninit, Nmin, n, minB, maxB, eval, feedback)
+%   LJADE(D, Ninit, Nmin, n, minB, maxB, eval, feedback)
 %
 %   D:         number of dimensions the problem has
 %   Ninit:     initial population size
@@ -15,10 +15,10 @@ function best = LSHADE(D, Ninit, Nmin, n, minB, maxB, eval, feedback)
         Nmin = 4;
     end
     
-    H = 25;
-    mcr = ones(1,H)*0.5;
-    mf = ones(1,H)*0.5;
-    
+    mcr = 0.5;
+    mf = 0.5;
+    mean_scr = 0.5;
+    mean_sf = 0.5;
     NP = Ninit;
     maxASize = NP;
     A = zeros(D, maxASize);
@@ -42,31 +42,29 @@ function best = LSHADE(D, Ninit, Nmin, n, minB, maxB, eval, feedback)
     diversify = @(mutation, g) diversifier(mutation, g, n, D, alpha, d, zeta);
     
     p = 0.1;                     %determine the percentage (1-p) of top candidates
-    pmin = 2/NP;
-    
-    top = round(NP*(p));       %number of top candidates
+    top = ceil(NP*(p));         %number of top candidates
     
     c_m = 0.35;
     
     %Lehmer mean
     %meanl = @(x) sum(x.^2)/sum(x);
     
-    k = 1;
-    
     maxNFE = D*10000;
     NFE = 0;
     
     while g < n && ~isempty(popStd(popStd > 0))
         
-        prevNP = NP;        
+        prevNP = NP;
         NP = round( (NFE*(Nmin - Ninit)/maxNFE)+ Ninit);
         if NP < 4
             NP = 4;
         end
         
+        top = ceil(NP*(p));
+        
         [~, scoreOrdering] = sort(score(:),'ascend');
         
-        if prevNP > NP
+         if prevNP > NP
             pop = pop(:,scoreOrdering(1:NP));
             score = score(scoreOrdering(1:NP));
         end
@@ -74,26 +72,18 @@ function best = LSHADE(D, Ninit, Nmin, n, minB, maxB, eval, feedback)
         g = g + 1;
         
         [~, scoreOrdering] = sort(score(:),'ascend');
+        pBest = scoreOrdering(1:top);
+
+        best = pop(:, pBest(randi(top, [1 NP])));
         
-        p = pmin + (0.2-pmin).*rand([1 NP]);
-        top = ceil(p*NP);
-        
-        best = zeros(D, NP);
-        for i = 1:NP
-            pBest = scoreOrdering(1:top(i));
-            best(:, i) = pop(:, pBest(randi(top(i))));
-        end
-        
-        r = randi(H, [1 NP]);
-        
-        cr = normrnd(mcr(r), 0.1, [1 NP]);
+        cr = normrnd(mcr, 0.1, [1 NP]);
         cr(cr > 1) = 1;
         cr(cr < 0) = 0;
         
-        f = normrnd(mf(r), 0.1, [1 NP]); %should be cauchy distribuited but is normally distribuited
+        f = normrnd(mf, 0.1, [1 NP]); %should be cauchy distribuited but is normally distribuited
         negatives = f < 0;
         while(~isempty(negatives(negatives == true)))
-          newF = normrnd(mf(r), 0.1, [1 NP]);
+          newF = normrnd(mf, 0.1, [1 NP]);
           f(negatives) = newF(negatives);
           negatives = f < 0;
         end
@@ -113,8 +103,7 @@ function best = LSHADE(D, Ninit, Nmin, n, minB, maxB, eval, feedback)
         popOld = pop;
         
         [x, mutation, restore] = mutator(g, pop, diversify, A, archiveSize);
-        
-        mutation = ((best - pop(:,x)) + mutation) .* cross;
+        mutation = ((best - pop(1:D,x)) + mutation) .* cross;
         pop = pop(1:D,x) + bsxfun(@times,f,mutation);
         
         pop(pop > maxB) = maxB;
@@ -149,16 +138,10 @@ function best = LSHADE(D, Ninit, Nmin, n, minB, maxB, eval, feedback)
             
             mean_scr = meanw(scr, wk);
             mean_sf = meanlw(sf, wk);
-            
-            mcr(k) = mean_scr;
-            mf(k) = mean_sf;
-            
-            if k > H
-                k = 1;
-            else
-                k = k + 1;
-            end
         end
+
+        mcr =  (1 - c_m) * mcr + c_m * mean_scr;
+        mf = (1 - c_m) * mf + c_m * mean_sf;
 
         popStd = std(pop,1,2);
         

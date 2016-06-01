@@ -10,7 +10,8 @@ Nmin = 4;
 maxASize = NP;
 tic
 % feedback = @(g) progressBar(30,g,n,true,false,true,true);
-best = LSHADE(D, NP, Nmin, n, -100, 100, eval, @progress);
+best = LJADE(D, NP, Nmin, n, -100, 100, eval, @progress);
+% best = LSHADE(D, NP, Nmin, n, -100, 100, eval, @progress);
 % best = SHADE(D, NP, n, -100, 100, maxASize, eval, @progress);
 % best = JADE(D, NP, n, -100, 100, maxASize, eval, @progress);
 % best = DE(D, NP, n, -100, 100, eval, @progress);

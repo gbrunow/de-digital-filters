@@ -13,21 +13,29 @@ A = 10;
 N = D;
 rastrigin = @(pop) A*N + sum(pop.^2 - A*cos(2*pi*pop));
 
-objFun = rosenbrock;
+objFun = rastrigin;
 tic
 
-runs = 100;
-fn = 2;
+runs = 150;
+fn = 4;
 
 pmax = fn*runs*n;
 results = zeros(fn * D, runs);
 for i = 1:runs
     best = JADE(D, NP, n, minB, maxB, maxASize, objFun);
     results(1:D,i) = best;
+    progress((i-0.75)/runs, 'Please wait...', false);
+    
+    best = SHADE(D, NP, n, minB, maxB, maxASize, objFun);
+    results((D+1):(2*D),i) = best;
     progress((i-0.5)/runs, 'Please wait...', false);
     
-    best = JADEB(D, NP, n, minB, maxB, maxASize, objFun);
-    results((D+1):(2*D),i) = best;
+    best = LSHADE(D, NP, 4, n, minB, maxB, objFun);
+    results((2*D+1):(3*D),i) = best;
+    progress((i-0.25)/runs, 'Please wait...', false);
+    
+    best = LJADE(D, NP, 4, n, minB, maxB, objFun);
+    results((3*D+1):(4*D),i) = best;
     progress(i/runs, 'Please wait...', false);
 end
 
@@ -80,6 +88,6 @@ T = table(StandardDeviation, Mean, 'RowNames', rows)
 % xlabel('Dimensão');
 % ylabel('Média');
                 
-load handel
+load train
 sound(y,Fs);
 

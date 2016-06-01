@@ -1,4 +1,4 @@
-D = 2;
+D = 25;
 n = 1000;
 NP = 100;
 minB = -2;
@@ -16,8 +16,9 @@ rastrigin = @(pop) A*N + sum(pop.^2 - A*cos(2*pi*pop));
 objFun = rastrigin;
 tic
 
-runs = 150;
+runs = 51;
 fn = 4;
+funcNames = {'JADE  ', 'SHADE ', 'LSHADE', 'LJADE '};
 
 pmax = fn*runs*n;
 results = zeros(fn * D, runs);
@@ -41,15 +42,24 @@ end
 
 StandardDeviation = std(results,1,2);
 Mean = mean(results,2);
+Min = min(results, [], 2);
+Max = max(results, [], 2);
 rows = cell(1, fn*D);
 k = 1;
+Dimension = zeros(fn*D,1);
 for i = 1:fn
    for j = 1:D
-       rows{k} = ['Func ' num2str(i) ', Dim ' num2str(j)];
+       if i <= length(funcNames)
+        rows{k} = [funcNames{i} '  D' num2str(j)];
+       else
+        rows{k} = ['Func ' num2str(i)];
+       end
+       Dimension(k) = j;
+       
        k = k + 1;
    end
 end
-T = table(StandardDeviation, Mean, 'RowNames', rows)
+T = table(StandardDeviation, Mean, Min, Max, 'RowNames', rows)
 
 % [(1:fn*D)' rstd rmean]
 

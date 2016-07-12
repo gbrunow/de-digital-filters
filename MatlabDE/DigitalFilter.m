@@ -47,6 +47,11 @@ classdef DigitalFilter < handle
             obj.dw = obj.func(obj.w);
         end
         
+        function obj = custom(obj, func)
+            obj.func = @(w) func(w) * obj.gain;
+            obj.dw = obj.func(obj.w);
+        end
+        
         function plot(obj)
             tempSamples = obj.samples;
             obj.setSamples(obj.plotSamples);

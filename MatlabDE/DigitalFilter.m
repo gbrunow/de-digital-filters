@@ -33,7 +33,7 @@ classdef DigitalFilter < handle
         end
         
         function obj = bandstop(obj)
-            obj.func = @(w) (w <= obj.cutoff(1) & w >= obj.cutoff(2)) *obj.gain;
+            obj.func = @(w) (w <= obj.cutoff(1) | w >= obj.cutoff(2)) *obj.gain;
             obj.dw = obj.func(obj.w);
         end
         
@@ -56,23 +56,25 @@ classdef DigitalFilter < handle
             tempSamples = obj.samples;
             obj.setSamples(obj.plotSamples);
             hold off;
-            plot(obj.w, obj.dw);
+            plot(obj.w, obj.dw, 'LineWidth', 2);
             xlabel('Frequency (rad/samples)');
             ylabel('Gain');
             ax = gca;
             set(ax,'XTick',[0 0.25*pi 0.5*pi 0.75*pi pi])
             set(ax,'XTickLabel',{'0','\pi/4','\pi/2','3\pi/4','\pi'})
             xlim([0 pi]);
-            if length(obj.b) > 0
-                if length(obj.a) > 0
+            if ~isempty(obj.b)
+                if ~isempty(obj.a)
                     [ha,wa] = freqz(obj.b,obj.a,obj.w);
                 else
                     [ha,wa] = freqz(obj.b,obj.w);
                 end
                 hold on;
-                plot(wa,abs(ha));
+                plot(wa,abs(ha), 'LineWidth', 2);
                 hold off;
                 legend('D(\omega)', 'H(\omega)');
+            else
+               legend('D(\omega)'); 
             end
             obj.setSamples(tempSamples);
         end 

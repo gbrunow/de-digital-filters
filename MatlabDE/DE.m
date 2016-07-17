@@ -1,4 +1,4 @@
-function best = DE(D, NP, n, minB, maxB, eval, feedback)
+function best = DE(D, NP, n, minB, maxB, f, cr, eval, feedback)
 %   JADE(D, NP, n, minB, maxB, maxAsize, eval, feedback)
 %
 %   D:         number of dimensions the problem has
@@ -6,6 +6,8 @@ function best = DE(D, NP, n, minB, maxB, eval, feedback)
 %   n:         maximum number of generations
 %   minB:      minumum boundary
 %   maxB:      maximum boundary
+%   f:         scale factor/mutation factor ("mutation" weight)
+%   cr:        crossover propability
 %   maxASize:  archive of improved solutions maximum size
 %   eval:      cost function
 %   feedback:  feedback function
@@ -24,8 +26,6 @@ function best = DE(D, NP, n, minB, maxB, eval, feedback)
     zeta = 1;
     diversify = @(mutation, g) diversifier(mutation, g, n, D, alpha, d, zeta);
     
-    f = 0.85;              %scale factor/mutation factor ("mutation" weight)
-    cr = 0.25;        %crossover propability
     g = 0 ;                      %generation
     
     while g < n && ~isempty(popStd(popStd > 0))

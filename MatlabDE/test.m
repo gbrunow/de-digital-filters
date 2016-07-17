@@ -12,11 +12,13 @@ maxASize = NP;
 tic
 % feedback = @(g) progressBar(30,g,n,true,false,true,true);
 % best = LJADE(D, NP, Nmin, n, -100, 100, eval, @progress);
-best = LSHADE(D, NP, Nmin, n, -100, 100, eval, @progress);
-% best = SHADE(D, NP, n, -100, 100, maxASize, eval, @progress);
+% best = LSHADE(D, NP, Nmin, n, -100, 100, eval, @progress);
+best = SHADE(D, NP, n, -100, 100, maxASize, eval, @progress);
 % best = JADE(D, NP, n, -100, 100, maxASize, eval, @progress);
-% best = DE(D, NP, n, -100, 100, eval, @progress);
-f.b = best(1:(D/2));
-f.a = best((D/2 +1):end);
+% best = DE(D, NP, n, -100, 100, 0.85, 0.25, eval, @progress);
+b = best(1:(D/2));
+a = best((D/2 +1):end);
+f.b = b;
+f.a = a;
 f.plot
 shg;

@@ -13,7 +13,7 @@ function [ out ] = progress(X, message, showEndBox)
         end
         if showEndBox
             toc;
-            uiwait(msgbox(message,['Finished in ' num2str(round(toc)) ' seconds.'], 'modal'));
+            msgbox(message,['Finished in ' num2str(round(toc)) ' seconds.'], 'modal');
         end
     else
         waitbar(X, h, message);     

@@ -11,6 +11,7 @@
 * [LSHADE](https://gitlab.com/gbrunow/de-digital-filters/blob/master/MatlabDE/LSHADE.m)
 * [LJADE](https://gitlab.com/gbrunow/de-digital-filters/commit/104aa45644dafd9fcf49b6baac0bb835b0e49a8b)
 * [Graphical User Interface](https://gitlab.com/gbrunow/de-digital-filters/blob/master/MatlabDE/display.m)
+![Matlab Graphical User Interface](/uploads/6595db63f2d8fc242469860115362ae2/gui.png)
 
 **R:**
 * [JADE](https://gitlab.com/gbrunow/de-digital-filters/blob/master/RDE/JADE.R)

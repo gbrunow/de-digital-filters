@@ -62,7 +62,7 @@ function best = DE(D, NP, n, minB, maxB, f, cr, eval, feedback)
 
         popStd = std(pop,1,2);
         
-        if nargin > 6 && (mod((g-1)/n,0.025) == 0)
+        if nargin > 8 && (mod((g-1)/n,0.025) == 0)
            feedback((g/n),['Minimum MSE ' num2str(min(score), '%10.5e') ' at generation ' num2str(g) '.']);
         end
     end

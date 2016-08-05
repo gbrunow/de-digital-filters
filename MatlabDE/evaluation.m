@@ -4,6 +4,8 @@ NP = 100;
 minB = -2;
 maxB = 2;
 maxASize = NP;
+F = 0.85;
+CR = 0.25;
 
 a = 1;
 b = 10;
@@ -13,32 +15,48 @@ A = 10;
 N = D;
 rastrigin = @(pop) A*N + sum(pop.^2 - A*cos(2*pi*pop));
 
-objFun = rastrigin;
+objFun = rosenbrock;
 tic
 
-runs = 51;
-fn = 4;
-funcNames = {'JADE  ', 'SHADE ', 'LSHADE', 'LJADE '};
+runs = 100;
+fn = 5;
+funcNames = {'DE', 'JADE  ', 'SHADE ', 'LSHADE', 'LJADE '};
 
 pmax = fn*runs*n;
 results = zeros(fn * D, runs);
+
+index = @(fni) (D*(fni-1)+1):(fni*D);
+percentage = @(i,fni) ((i-1) + (fni/fn))/(fn*runs);
+
 for i = 1:runs
+    fni = 0;
+    
+    fni = fni + 1;
+    best = DE(D, NP, n, minB, maxB, F, CR, objFun);
+    results(index(fni),i) = best;
+    progress(percentage(i,fni), 'Please wait...', false);
+    
+    fni = fni + 1;
     best = JADE(D, NP, n, minB, maxB, maxASize, objFun);
-    results(1:D,i) = best;
-    progress((i-0.75)/runs, 'Please wait...', false);
+    results(index(fni),i) = best;
+    progress(percentage(i,fni), 'Please wait...', false);
     
+    fni = fni + 1;
     best = SHADE(D, NP, n, minB, maxB, maxASize, objFun);
-    results((D+1):(2*D),i) = best;
-    progress((i-0.5)/runs, 'Please wait...', false);
+    results(index(fni),i) = best;
+    progress(percentage(i,fni), 'Please wait...', false);
     
+    fni = fni + 1;
     best = LSHADE(D, NP, 4, n, minB, maxB, objFun);
-    results((2*D+1):(3*D),i) = best;
-    progress((i-0.25)/runs, 'Please wait...', false);
+    results(index(fni),i) = best;
+    progress(percentage(i,fni), 'Please wait...', false);
     
+    fni = fni + 1;
     best = LJADE(D, NP, 4, n, minB, maxB, objFun);
-    results((3*D+1):(4*D),i) = best;
-    progress(i/runs, 'Please wait...', false);
+    results(index(fni),i) = best;
+    progress(percentage(i,fni), 'Please wait...', false);
 end
+progress(1, 'Please wait...', false);
 
 StandardDeviation = std(results,1,2);
 Mean = mean(results,2);

@@ -1,35 +1,35 @@
-function varargout = display(varargin)
-% DISPLAY MATLAB code for display.fig
-%      DISPLAY, by itself, creates a new DISPLAY or raises the existing
+function varargout = interface(varargin)
+% INTERFACE MATLAB code for interface.fig
+%      INTERFACE, by itself, creates a new INTERFACE or raises the existing
 %      singleton*.
 %
-%      H = DISPLAY returns the handle to a new DISPLAY or the handle to
+%      H = INTERFACE returns the handle to a new INTERFACE or the handle to
 %      the existing singleton*.
 %
-%      DISPLAY('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in DISPLAY.M with the given input arguments.
+%      INTERFACE('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in INTERFACE.M with the given input arguments.
 %
-%      DISPLAY('Property','Value',...) creates a new DISPLAY or raises the
+%      INTERFACE('Property','Value',...) creates a new INTERFACE or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before display_OpeningFcn gets called.  An
+%      applied to the GUI before interface_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to display_OpeningFcn via varargin.
+%      stop.  All inputs are passed to interface_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help display
+% Edit the above text to modify the response to help interface
 
-% Last Modified by GUIDE v2.5 17-Jul-2016 03:34:53
+% Last Modified by GUIDE v2.5 05-Aug-2016 00:25:52
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @display_OpeningFcn, ...
-                   'gui_OutputFcn',  @display_OutputFcn, ...
+                   'gui_OpeningFcn', @interface_OpeningFcn, ...
+                   'gui_OutputFcn',  @interface_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -44,15 +44,15 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before display is made visible.
-function display_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before interface is made visible.
+function interface_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to display (see VARARGIN)
+% varargin   command line arguments to interface (see VARARGIN)
 
-% Choose default command line output for display
+% Choose default command line output for interface
 handles.output = hObject;
 
 % Global variables %
@@ -69,12 +69,12 @@ handles.output = hObject;
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes display wait for user response (see UIRESUME)
+% UIWAIT makes interface wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = display_OutputFcn(hObject, eventdata, handles) 
+function varargout = interface_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB

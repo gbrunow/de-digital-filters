@@ -5,24 +5,24 @@
 
 # Features
 **Matlab:**
-* [Classic DE](https://gitlab.com/gbrunow/de-digital-filters/blob/master/MatlabDE/DE.m)
-* [JADE](https://gitlab.com/gbrunow/de-digital-filters/blob/master/MatlabDE/JADE.m)
-* [SHADE](https://gitlab.com/gbrunow/de-digital-filters/blob/master/MatlabDE/SHADE.m)
-* [LSHADE](https://gitlab.com/gbrunow/de-digital-filters/blob/master/MatlabDE/LSHADE.m)
-* [LJADE](https://gitlab.com/gbrunow/de-digital-filters/commit/104aa45644dafd9fcf49b6baac0bb835b0e49a8b)
-* [Graphical User Interface](https://gitlab.com/gbrunow/de-digital-filters/blob/master/MatlabDE/display.m)
-![Matlab Graphical User Interface](/uploads/6595db63f2d8fc242469860115362ae2/gui.png)
+* [Classic DE](https://github.com/gbrunow/de-digital-filters/blob/master/MatlabDE/DE.m)
+* [JADE](https://github.com/gbrunow/de-digital-filters/blob/master/MatlabDE/JADE.m)
+* [SHADE](https://github.com/gbrunow/de-digital-filters/blob/master/MatlabDE/SHADE.m)
+* [LSHADE](https://github.com/gbrunow/de-digital-filters/blob/master/MatlabDE/LSHADE.m)
+* [LJADE](https://github.com/gbrunow/de-digital-filters/commit/104aa45644dafd9fcf49b6baac0bb835b0e49a8b)
+* [Graphical User Interface](https://github.com/gbrunow/de-digital-filters/blob/master/MatlabDE/display.m)
+![Matlab Graphical User Interface](https://raw.githubusercontent.com/gbrunow/de-digital-filters/master/assets/gui.png)
 
 **R:**
-* [JADE](https://gitlab.com/gbrunow/de-digital-filters/blob/master/RDE/JADE.R)
+* [JADE](https://github.com/gbrunow/de-digital-filters/blob/master/RDE/JADE.R)
 
 # Benchmark Functions
 * [Rosenbrock](https://en.wikipedia.org/wiki/Rosenbrock_function)
 * [Rastrigin](https://en.wikipedia.org/wiki/Rastrigin_function)
 
 # Instructions
-* This solver can be utilized through the graphical interface – by running the [main.m] (https://gitlab.com/gbrunow/de-digital-filters/blob/master/MatlabDE/main.m) file – or directly running the functions for the desired optimizer (e.g. JADE, LSHADE, etc). 
+* This solver can be utilized through the graphical interface – by running the [main.m] (https://github.com/gbrunow/de-digital-filters/blob/master/MatlabDE/main.m) file – or directly running the functions for the desired optimizer (e.g. JADE, LSHADE, etc). 
 
 # Help
-* [MatlabDE/test.m](https://gitlab.com/gbrunow/de-digital-filters/blob/master/MatlabDE/test.m) has examples of IIR design using differential evolution.
-* [RDE/test.R](https://gitlab.com/gbrunow/de-digital-filters/blob/master/RDE/test.R) has another example of IIR design.
+* [MatlabDE/test.m](https://github.com/gbrunow/de-digital-filters/blob/master/MatlabDE/test.m) has examples of IIR design using differential evolution.
+* [RDE/test.R](https://github.com/gbrunow/de-digital-filters/blob/master/RDE/test.R) has another example of IIR design.

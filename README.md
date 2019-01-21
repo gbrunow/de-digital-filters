@@ -21,7 +21,7 @@
 * [Rastrigin](https://en.wikipedia.org/wiki/Rastrigin_function)
 
 # Instructions
-* This solver can be utilized through the graphical interface – by running the [main.m] (https://github.com/gbrunow/de-digital-filters/blob/master/MatlabDE/main.m) file – or directly running the functions for the desired optimizer (e.g. JADE, LSHADE, etc). 
+* This solver can be utilized through the graphical interface – by running the [main.m](https://github.com/gbrunow/de-digital-filters/blob/master/MatlabDE/main.m) file – or directly running the functions for the desired optimizer (e.g. JADE, LSHADE, etc). 
 
 # Help
 * [MatlabDE/test.m](https://github.com/gbrunow/de-digital-filters/blob/master/MatlabDE/test.m) has examples of IIR design using differential evolution.

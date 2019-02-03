@@ -18,7 +18,9 @@
 
 # Benchmark Functions
 * [Rosenbrock](https://en.wikipedia.org/wiki/Rosenbrock_function)
+![Rosenbrock Benchmark Function](https://raw.githubusercontent.com/gbrunow/de-digital-filters/master/assets/rosenbrock.png)
 * [Rastrigin](https://en.wikipedia.org/wiki/Rastrigin_function)
+![Rastrigin Benchmark Function](https://raw.githubusercontent.com/gbrunow/de-digital-filters/master/assets/rastrigin.png)
 
 # Instructions
 * This solver can be utilized through the graphical interface – by running the [main.m](https://github.com/gbrunow/de-digital-filters/blob/master/MatlabDE/main.m) file – or directly running the functions for the desired optimizer (e.g. JADE, LSHADE, etc). 

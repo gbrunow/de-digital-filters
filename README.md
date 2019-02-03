@@ -17,9 +17,9 @@
 * [JADE](https://github.com/gbrunow/de-digital-filters/blob/master/RDE/JADE.R)
 
 # Benchmark Functions
-* [Rosenbrock](https://en.wikipedia.org/wiki/Rosenbrock_function)
+* [Rosenbrock](https://en.wikipedia.org/wiki/Rosenbrock_function)<br/>
 ![Rosenbrock Benchmark Function](https://raw.githubusercontent.com/gbrunow/de-digital-filters/master/assets/rosenbrock.png)
-* [Rastrigin](https://en.wikipedia.org/wiki/Rastrigin_function)
+* [Rastrigin](https://en.wikipedia.org/wiki/Rastrigin_function)<br/>
 ![Rastrigin Benchmark Function](https://raw.githubusercontent.com/gbrunow/de-digital-filters/master/assets/rastrigin.png)
 
 # Instructions
